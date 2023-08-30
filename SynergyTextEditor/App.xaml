@@ -4,6 +4,11 @@
              xmlns:local="clr-namespace:SynergyTextEditor"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
-        <ResourceDictionary Source="pack://application:,,,/Themes/DarkTheme.xaml"/>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/Themes/DarkTheme.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Themes/Styles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
     </Application.Resources>
 </Application>

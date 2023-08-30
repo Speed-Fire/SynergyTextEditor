@@ -29,11 +29,11 @@
                 <MenuItem Header="Undo"
                           CommandTarget="{Binding ElementName=Editor}"
                           Command="Undo"/>
-                
+
                 <MenuItem Header="Redo"
                           CommandTarget="{Binding ElementName=Editor}"
                           Command="Redo"/>
-                
+
                 <Separator/>
                 <MenuItem Header="Text analyzers...">
                     <MenuItem Header="None"
