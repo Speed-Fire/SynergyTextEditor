@@ -34,5 +34,15 @@ namespace SynergyTextEditor
             DataContext = viewModel = vm;
             CommandBindings.AddRange(viewModel.CommandBindings);
         }
+
+        private void MenuSettingsThemeLight_Click(object sender, RoutedEventArgs e)
+        {
+            LightThemeSetting.IsChecked = true;
+        }
+
+        private void MenuSettingsThemeDark_Click(object sender, RoutedEventArgs e)
+        {
+            DarkThemeSetting.IsChecked = true;
+        }
     }
 }

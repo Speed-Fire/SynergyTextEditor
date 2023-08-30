@@ -41,6 +41,32 @@
                               IsChecked="True"/>
                 </MenuItem>
             </MenuItem>
+
+            <MenuItem Header="Settings">
+                <MenuItem Header="Themes">
+                    <MenuItem x:Name="MenuSettingsThemeLight"
+                              Header="Light"
+                              Click="MenuSettingsThemeLight_Click">
+                        <MenuItem.Icon>
+                            <RadioButton
+                                x:Name="LightThemeSetting"
+                                GroupName="kkk"/>
+                        </MenuItem.Icon>
+                    </MenuItem>
+
+                    <MenuItem x:Name="MenuSettingsThemeDark"
+                              Header="Dark"
+                              Click="MenuSettingsThemeDark_Click">
+                        <MenuItem.Icon>
+                            <RadioButton
+                                x:Name="DarkThemeSetting"
+                                GroupName="kkk"/>
+                        </MenuItem.Icon>
+
+                        
+                    </MenuItem>
+                </MenuItem>
+            </MenuItem>
         </Menu>
 
         <RichTextBox
