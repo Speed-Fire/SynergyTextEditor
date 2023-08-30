@@ -27,12 +27,12 @@ namespace SynergyTextEditor
         {
             InitializeComponent();
 
-            DataContext = viewModel = new MainVM(Editor.Document);
-        }
+            var vm = new MainVM(Editor.Document);
 
-        private void Editor_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            viewModel.TextChanged();
+            Editor.TextChanged += vm.OnTextChanged;
+
+            DataContext = viewModel = vm;
+            CommandBindings.AddRange(viewModel.CommandBindings);
         }
     }
 }

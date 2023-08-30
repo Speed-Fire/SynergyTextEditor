@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Documents;
 
 #nullable disable
@@ -20,7 +21,7 @@ namespace SynergyTextEditor.Classes
 
         private Dictionary<string, ISavingStrategy> SavingStrategies = new();
 
-        public bool TextChanged { get; set; } = false;
+        public bool IsTextChanged { get; private set; } = false;
 
         private readonly FlowDocument document;
 
@@ -43,7 +44,7 @@ namespace SynergyTextEditor.Classes
 
             strategy.Save(document, path);
 
-            TextChanged = false;
+            IsTextChanged = false;
         }
 
         public void Open(string path)
@@ -78,7 +79,7 @@ namespace SynergyTextEditor.Classes
 
         public bool Create(bool force = false)
         {
-            if (TextChanged && !force) return false;
+            if (IsTextChanged && !force) return false;
 
             document.Blocks.Clear();
 
@@ -92,7 +93,12 @@ namespace SynergyTextEditor.Classes
 
         private void InitSavingStrategies()
         {
+            SavingStrategies.Add(".txt", new TextSavingStrategy());
 
+            var xamlSave = new XamlSavingStrategy();
+
+            SavingStrategies.Add(".xml", xamlSave);
+            SavingStrategies.Add(".xaml", xamlSave);
         }
 
         private ISavingStrategy GetSavingStrategy(string path)
@@ -107,6 +113,11 @@ namespace SynergyTextEditor.Classes
             {
                 return SavingStrategies[".txt"];
             }
+        }
+
+        public void OnTextChanged(TextChangedEventArgs e)
+        {
+            IsTextChanged = true;
         }
 
         protected void OnPropertyChanged(string propertyName)
