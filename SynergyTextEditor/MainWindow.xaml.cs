@@ -47,8 +47,7 @@ namespace SynergyTextEditor
             DataContext = viewModel = vm;
             CommandBindings.AddRange(viewModel.CommandBindings);
 
-            textHighlighter = new TextHighlighter(Editor);
-            
+            textHighlighter = new TextHighlighter(Editor);     
         }
 
         private void MenuSettingsThemeLight_Click(object sender, RoutedEventArgs e)
@@ -59,17 +58,6 @@ namespace SynergyTextEditor
         private void MenuSettingsThemeDark_Click(object sender, RoutedEventArgs e)
         {
             DarkThemeSetting.IsChecked = true;
-        }
-
-        private void Editor_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            var rtb = sender as RichTextBox;
-
-            //textHighlighter.UpdateText(sender, e);
-
-            //textHighlighter.HighlightFull();
-
-            //textHighlighter.test();
         }
     }
 }

@@ -20,7 +20,7 @@ namespace SynergyTextEditor.Classes
     {
         public TextPointer StartPosition;
         public TextPointer EndPosition;
-        public string Word;
+        //public string Word;
     }
 
     public class TextHighlighter
