@@ -86,11 +86,6 @@ namespace SynergyTextEditor.Classes
             return true;
         }
 
-        private void HighlightText()
-        {
-
-        }
-
         private void InitSavingStrategies()
         {
             SavingStrategies.Add(".txt", new TextSavingStrategy());

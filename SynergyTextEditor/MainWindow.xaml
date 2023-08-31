@@ -82,6 +82,7 @@
         <RichTextBox
             x:Name="Editor"
             Block.LineHeight="2" 
-            Grid.Row="1"/>
+            Grid.Row="1"
+            TextChanged="Editor_TextChanged"/>
     </Grid>
 </Window>

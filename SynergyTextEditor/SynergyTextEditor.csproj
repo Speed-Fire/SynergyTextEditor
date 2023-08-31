@@ -7,4 +7,8 @@
     <UseWPF>true</UseWPF>
   </PropertyGroup>
 
+  <ItemGroup>
+    <None Remove="cwvmdznb.0kw~" />
+  </ItemGroup>
+
 </Project>
