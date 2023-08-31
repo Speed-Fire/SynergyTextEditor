@@ -43,6 +43,8 @@ namespace SynergyTextEditor.ViewModels
             };
         }
 
+        #region Application commands handlers
+
         private void OpenFile(object sender, ExecutedRoutedEventArgs e)
         {
             RequestSaving(sender, e);
@@ -75,7 +77,6 @@ namespace SynergyTextEditor.ViewModels
                 textEditor.Save(OpenedFile);
         }
 
-
         private void SaveAsFile(object sender, ExecutedRoutedEventArgs e)
         {
             var sfd = new SaveFileDialog();
@@ -85,6 +86,31 @@ namespace SynergyTextEditor.ViewModels
                 textEditor.Save(sfd.FileName);
             }
         }
+
+        #endregion
+
+        #region Commands
+
+        private RelayCommand setTheme;
+        public RelayCommand SetTheme => setTheme ??
+            (setTheme = new RelayCommand(theme =>
+            {
+                switch(theme as string)
+                {
+                    case "light":
+                        {
+                            AppThemeController.Instance.SetTheme("light");
+                        }
+                        break;
+                    case "dark":
+                        {
+                            AppThemeController.Instance.SetTheme("dark");
+                        }
+                        break;
+                }
+            }));
+
+        #endregion
 
         public void OnTextChanged(object sender, TextChangedEventArgs e)
         {

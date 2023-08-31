@@ -1,12 +1,10 @@
 ﻿<Application x:Class="SynergyTextEditor.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:local="clr-namespace:SynergyTextEditor"
-             StartupUri="MainWindow.xaml">
+             xmlns:local="clr-namespace:SynergyTextEditor">
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="pack://application:,,,/Themes/DarkTheme.xaml"/>
                 <ResourceDictionary Source="pack://application:,,,/Themes/Styles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>

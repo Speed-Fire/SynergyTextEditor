@@ -1,4 +1,5 @@
-﻿using SynergyTextEditor.ViewModels;
+﻿using SynergyTextEditor.Classes;
+using SynergyTextEditor.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,6 +27,16 @@ namespace SynergyTextEditor
         public MainWindow()
         {
             InitializeComponent();
+
+            switch (AppThemeController.Instance.CurrentThemeName)
+            {
+                case "light":
+                    LightThemeSetting.IsChecked = true;
+                    break;
+                case "dark":
+                    DarkThemeSetting.IsChecked = true;
+                    break;
+            }
 
             var vm = new MainVM(Editor.Document);
 

@@ -4,8 +4,10 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SynergyTextEditor"
+        xmlns:classes="clr-namespace:SynergyTextEditor.Classes"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
+
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -46,21 +48,29 @@
                 <MenuItem Header="Themes">
                     <MenuItem x:Name="MenuSettingsThemeLight"
                               Header="Light"
+                              Command="{Binding SetTheme}"
+                              CommandParameter="light"
                               Click="MenuSettingsThemeLight_Click">
                         <MenuItem.Icon>
                             <RadioButton
                                 x:Name="LightThemeSetting"
-                                GroupName="kkk"/>
+                                GroupName="ThemeGroup"
+                                Command="{Binding SetTheme}"
+                                CommandParameter="light"/>
                         </MenuItem.Icon>
                     </MenuItem>
 
                     <MenuItem x:Name="MenuSettingsThemeDark"
                               Header="Dark"
+                              Command="{Binding SetTheme}"
+                              CommandParameter="dark"
                               Click="MenuSettingsThemeDark_Click">
                         <MenuItem.Icon>
                             <RadioButton
                                 x:Name="DarkThemeSetting"
-                                GroupName="kkk"/>
+                                GroupName="ThemeGroup"
+                                Command="{Binding SetTheme}"
+                                CommandParameter="dark"/>
                         </MenuItem.Icon>
 
                         

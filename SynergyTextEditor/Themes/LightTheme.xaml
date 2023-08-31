@@ -5,7 +5,7 @@
     <SolidColorBrush x:Key="RichTextBox.Foreground" Color="Black"/>
 
     <SolidColorBrush x:Key="Menu.Background" Color="#FFF0F0F0"/>
-    <SolidColorBrush x:Key="Menu.Foreground" Color="{DynamicResource {x:Static SystemColors.MenuTextBrushKey}}"/>
+    <SolidColorBrush x:Key="Menu.Foreground" Color="Black"/>
 
     <SolidColorBrush x:Key="MenuItem.Foreground" Color="#FF212121"/>
     <SolidColorBrush x:Key="MenuItem.SubMenuBorder.Background" Color="#FFF0F0F0"/>
