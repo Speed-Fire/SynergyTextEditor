@@ -5,6 +5,7 @@ using SynergyTextEditor.Messages;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -194,6 +195,8 @@ namespace SynergyTextEditor.Classes
 
         void IRecipient<FileOpenedMessage>.Receive(FileOpenedMessage message)
         {
+            language = languageSelector.GetLanguage(Path.GetExtension(message.Value));
+
             FullHighlight();
         }
 

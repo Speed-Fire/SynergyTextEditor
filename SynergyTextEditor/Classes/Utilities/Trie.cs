@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 #nullable disable
 
-namespace SynergyTextEditor.Classes
+namespace SynergyTextEditor.Classes.Utilities
 {
     public class Trie
     {
@@ -80,11 +80,11 @@ namespace SynergyTextEditor.Classes
         {
             var tmp = root;
 
-            foreach(var symb in word)
+            foreach (var symb in word)
             {
                 if (!tmp.Relations.ContainsKey(symb))
                     return false;
-                
+
                 tmp = tmp.Relations[symb];
             }
 
@@ -103,7 +103,7 @@ namespace SynergyTextEditor.Classes
             if (root.Relations.Count == 0)
                 return false;
 
-            foreach(var symb in word)
+            foreach (var symb in word)
             {
                 if (root.Relations.Count > 1)
                 {
@@ -119,12 +119,12 @@ namespace SynergyTextEditor.Classes
 
             curNode.WordCount--;
 
-            if(curNode.WordCount > 0)
+            if (curNode.WordCount > 0)
             {
                 return true;
             }
 
-            if(curNode.WordCount == 0 && curNode.Relations.Count == 0)
+            if (curNode.WordCount == 0 && curNode.Relations.Count == 0)
             {
                 lastBranchNode.Relations.Remove(lastBranchChar);
                 return true;

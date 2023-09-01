@@ -24,7 +24,7 @@ namespace SynergyTextEditor.Classes.Extensions
         {
             services
                 .AddSingleton<IKeywordLanguageLoader, KeywordLanguageLoader>()
-                .AddTransient<IKeywordLanguageSelector, KeywordLanguageSelector>();
+                .AddSingleton<IKeywordLanguageSelector, KeywordLanguageSelector>();
             
             return services;
         }

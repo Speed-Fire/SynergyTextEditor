@@ -8,6 +8,7 @@ using System.Windows.Shapes;
 using static SynergyTextEditor.Classes.KeywordLanguageLoader;
 using System.Xml.Serialization;
 using System.Text.RegularExpressions;
+using SynergyTextEditor.Classes.Utilities;
 
 #nullable disable
 
@@ -22,7 +23,7 @@ namespace SynergyTextEditor.Classes
         IEnumerable<string> GetAllLanguages();
     }
 
-    internal class KeywordLanguageSelector : IKeywordLanguageSelector
+    public class KeywordLanguageSelector : IKeywordLanguageSelector
     {
         static readonly string keywordLanguageMapperPath = "\\KeywordLangMapper.xaml";
         static readonly string keywordLanguageDirectory = "\\KeywordLanguages\\";
@@ -30,14 +31,16 @@ namespace SynergyTextEditor.Classes
         private readonly IKeywordLanguageLoader keywordLanguageLoader;
         private KeywordLanguageMapper _keywordLanguageMapper;
 
+        private object locker = new();
+
         [Serializable]
-        private class KeywordLanguageMapper
+        public class KeywordLanguageMapper
         {
-            public Dictionary<string, string> _extensionDictionary;
-            public Dictionary<string, string> _languageNameDictionary;
+            public SerializableDictionary<string, string> _extensionDictionary;
+            public SerializableDictionary<string, string> _languageNameDictionary;
         }
 
-        internal KeywordLanguageSelector(IKeywordLanguageLoader keywordLanguageLoader)
+        public KeywordLanguageSelector(IKeywordLanguageLoader keywordLanguageLoader)
         {
             this.keywordLanguageLoader = keywordLanguageLoader;
             LoadKeywordLanguageMapper();
@@ -46,7 +49,7 @@ namespace SynergyTextEditor.Classes
         private void LoadKeywordLanguageMapper()
         {
             var formatter = new XmlSerializer(typeof(KeywordLanguageMapper));
-
+            
             var path = Directory.GetCurrentDirectory() + keywordLanguageMapperPath;
 
             if (!File.Exists(path))
@@ -94,106 +97,121 @@ namespace SynergyTextEditor.Classes
 
         public KeywordLanguage GetLanguage(string fileExt)
         {
-            if (!_keywordLanguageMapper._extensionDictionary.ContainsKey(fileExt))
-                return null;
+            lock (locker)
+            {
+                if (!_keywordLanguageMapper._extensionDictionary.ContainsKey(fileExt))
+                    return null;
 
-            var languagePath =
-                Directory.GetCurrentDirectory() 
-                + _keywordLanguageMapper._extensionDictionary[fileExt];
+                var languagePath =
+                    Directory.GetCurrentDirectory()
+                    + keywordLanguageMapperPath
+                    + _keywordLanguageMapper._extensionDictionary[fileExt];
 
-            return keywordLanguageLoader.Load(languagePath);
+                return keywordLanguageLoader.Load(languagePath);
+            }
         }
 
         public KeywordLanguage GetLanguageByName(string name)
         {
-            if (!_keywordLanguageMapper._languageNameDictionary.ContainsKey(name))
-                return null;
+            lock (locker)
+            {
+                if (!_keywordLanguageMapper._languageNameDictionary.ContainsKey(name))
+                    return null;
 
-            var langPath =
-                Directory.GetCurrentDirectory()
-                + _keywordLanguageMapper._languageNameDictionary[name];
+                var langPath =
+                    Directory.GetCurrentDirectory()
+                    + keywordLanguageDirectory
+                    + _keywordLanguageMapper._languageNameDictionary[name];
 
-            return keywordLanguageLoader.Load(langPath);
+                return keywordLanguageLoader.Load(langPath);
+            }
         }
 
         public bool UploadLanguage(string path, out Exception ex)
         {
-            ex = null;
-
-            try
+            lock (locker)
             {
-                // Preload language
-                var lang = keywordLanguageLoader.Load(path);
 
-                // Check if language is not taken
-                if (_keywordLanguageMapper._languageNameDictionary.ContainsKey(lang.Name))
-                    throw new Exception($"Specified language name \'{lang.Name}\' is already taken!");
+                ex = null;
 
-                // Check language file extensions
-                var regex = new Regex(@"^[.]\w+$");
-                foreach (var ext in lang.FileExtensions)
+                try
                 {
-                    // check if extension is valid
-                    if (!regex.IsMatch(ext))
-                        throw new Exception($"Specified extension \'{ext}\' is invalid!");
+                    // Preload language
+                    var lang = keywordLanguageLoader.Load(path);
 
-                    // check if extension is unknown
-                    if (_keywordLanguageMapper._extensionDictionary.ContainsKey(ext))
-                        throw new Exception($"Extension \'{ext}\' is already taken!");
-                }
+                    // Check if language is not taken
+                    if (_keywordLanguageMapper._languageNameDictionary.ContainsKey(lang.Name))
+                        throw new Exception($"Specified language name \'{lang.Name}\' is already taken!");
 
-                // local copy path to put into dictionary
-                var localCopyPath =
-                    keywordLanguageDirectory
-                    + System.IO.Path.GetFileName(path);
+                    // Check language file extensions
+                    var regex = new Regex(@"^[.]\w+$");
+                    foreach (var ext in lang.FileExtensions)
+                    {
+                        // check if extension is valid
+                        if (!regex.IsMatch(ext))
+                            throw new Exception($"Specified extension \'{ext}\' is invalid!");
 
-                // copy path to save a copy
-                var copyPath =
-                    Directory.GetCurrentDirectory()
-                    + localCopyPath;
+                        // check if extension is unknown
+                        if (_keywordLanguageMapper._extensionDictionary.ContainsKey(ext))
+                            throw new Exception($"Extension \'{ext}\' is already taken!");
+                    }
 
-                // if file already exists, insert guid string at the beginning of file name 
-                if (File.Exists(copyPath))
-                {
-                    localCopyPath =
-                        keywordLanguageDirectory
-                        + Guid.NewGuid().ToString()
-                        + System.IO.Path.GetFileName(path);
+                    // local copy path to put into dictionary
+                    var localCopyPath =
+                        System.IO.Path.GetFileName(path);
 
-                    copyPath =
+                    // copy path to save a copy
+                    var copyPath =
                         Directory.GetCurrentDirectory()
+                        + keywordLanguageDirectory
                         + localCopyPath;
+
+                    // if file already exists, insert guid string at the beginning of file name 
+                    if (File.Exists(copyPath))
+                    {
+                        localCopyPath =
+                            Guid.NewGuid().ToString()
+                            + System.IO.Path.GetFileName(path);
+
+                        copyPath =
+                            Directory.GetCurrentDirectory()
+                            + keywordLanguageDirectory
+                            + localCopyPath;
+                    }
+
+                    // Make a copy
+                    File.Copy(path, copyPath, false);
+
+                    // Fill _keywordLanguageMapper with new extensions
+                    foreach (var ext in lang.FileExtensions)
+                    {
+                        _keywordLanguageMapper._extensionDictionary[ext] = localCopyPath;
+                    }
+
+                    // Add name to language mapping to _languageNameDictionary
+                    _keywordLanguageMapper._languageNameDictionary[lang.Name] = localCopyPath;
+
+                    // Save updated _keywordLanguageMapper
+                    SaveKeywordLanguageMapper();
+
+                    return true;
                 }
-
-                // Make a copy
-                File.Copy(path, copyPath, false);
-
-                // Fill _keywordLanguageMapper with new extensions
-                foreach (var ext in lang.FileExtensions)
+                catch (Exception _ex)
                 {
-                    _keywordLanguageMapper._extensionDictionary[ext] = localCopyPath;
+                    ex = _ex;
+                    return false;
                 }
-
-                // Add name to language mapping to _languageNameDictionary
-                _keywordLanguageMapper._languageNameDictionary[lang.Name] = localCopyPath;
-
-                // Save updated _keywordLanguageMapper
-                SaveKeywordLanguageMapper();
-
-                return true;
-            }
-            catch (Exception _ex)
-            {
-                ex = _ex;
-                return false;
             }
         }
 
         public IEnumerable<string> GetAllLanguages()
         {
-            return _keywordLanguageMapper
-                ._languageNameDictionary
-                .Keys;
+            lock (locker)
+            {
+                return _keywordLanguageMapper
+                    ._languageNameDictionary
+                    .Keys;
+            }
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using SynergyTextEditor.Classes.Converters;
+using SynergyTextEditor.Classes.Utilities;
 using System;
 using System.Collections.Generic;
 using System.IO;
