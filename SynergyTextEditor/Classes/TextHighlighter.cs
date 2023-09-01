@@ -16,26 +16,17 @@ using System.Windows.Media;
 
 namespace SynergyTextEditor.Classes
 {
-    struct Tag
-    {
-        public TextPointer StartPosition;
-        public TextPointer EndPosition;
-        //public string Word;
-    }
-
     public class TextHighlighter
     {
         private readonly RichTextBox rtb;
 
-        private bool IsColoring { get; set; } = false;
-
-        private Paragraph CurrentParagraph { get; set; }
-
-        private char[] SeparatorChars = new char[] { '{', '}', '(', ')', '[', ']', '+', '-', '=', '*', '/', '!', '|', '&', '^' };
+        private Language language;
 
         public TextHighlighter(RichTextBox rtb)
         {
             this.rtb = rtb;
+
+            language = LanguageLoader.Load("C:\\Users\\Влад\\Desktop\\CSlangHighlight.xaml");
 
             rtb.TextChanged += TextChanged;
         }
@@ -62,7 +53,7 @@ namespace SynergyTextEditor.Classes
             var range = new TextRange(paragraph.ContentStart, paragraph.ContentEnd);
             range.ClearAllProperties();
 
-            List<Tag> tags = new();
+            List<Keyword> tags = new();
 
             // Find all keywords in the paragraph
             for (var navigator = /*rtb.Document*/paragraph.ContentStart;
@@ -79,48 +70,78 @@ namespace SynergyTextEditor.Classes
             }
 
             // when all keywords are found, styling them
-            for (int i = 0; i < tags.Count; i++) 
-            {
-                try
-                {
-                    var colorRange = new TextRange(tags[i].StartPosition, tags[i].EndPosition);
-                    colorRange.ApplyPropertyValue(TextElement.ForegroundProperty,
-                        new SolidColorBrush(Color.FromRgb(82, 156, 214)));
-                    //colorRange.ApplyPropertyValue(TextElement.FontWeightProperty,
-                    //    FontWeights.Bold);
-                }
-                catch { }
-            }
+            //for (int i = 0; i < tags.Count; i++) 
+            //{
+            //    try
+            //    {
+            //        var colorRange = new TextRange(tags[i].StartPosition, tags[i].EndPosition);
+            //        colorRange.ApplyPropertyValue(TextElement.ForegroundProperty,
+            //            new SolidColorBrush(Color.FromRgb(82, 156, 214)));
+            //        //colorRange.ApplyPropertyValue(TextElement.FontWeightProperty,
+            //        //    FontWeights.Bold);
+            //    }
+            //    catch { }
+            //}
+
+            language.ApplyStyling();
 
             rtb.TextChanged += TextChanged;
         }
 
-        private List<Tag> GetTagsFromRun(Run run)
+        private List<Keyword> GetTagsFromRun(Run run)
         {
-            var res = new List<Tag>();
+            var res = new List<Keyword>();
             var text = run.Text;
 
             int endId, startId = endId = 0;
 
             for(int i = 0; i < text.Length; i++)
             {
-                if (char.IsWhiteSpace(text[i]) || SeparatorChars.Contains(text[i]))
+                var isSpecial = language.IsSpecial(text[i].ToString());
+
+                // specifying special symbol for coloring
+                if (isSpecial)
                 {
-                    if(i > 0 && !(char.IsWhiteSpace(text[i - 1]) || SeparatorChars.Contains(text[i - 1])))
+                    var keyword = new Keyword()
+                    {
+                        StartPosition = run.ContentStart.GetPositionAtOffset(i, LogicalDirection.Forward),
+                        EndPosition = run.ContentStart.GetPositionAtOffset(i + 1, LogicalDirection.Backward),
+                        Word = text[i].ToString()
+                    };
+
+                    language.TryPut(keyword);
+                }
+
+                // specifying other words for coloring
+                if (char.IsWhiteSpace(text[i]) || /*SeparatorChars.Contains(text[i])*/ isSpecial)
+                {
+                    if(i > 0 && !(char.IsWhiteSpace(text[i - 1]) || /*SeparatorChars.Contains(text[i - 1])*/language.IsSpecial(text[i - 1].ToString())))
                     {
                         endId = i - 1;
 
                         var word = text.Substring(startId, endId - startId + 1);
 
-                        if (IsKeyword(word))
+                        //if (IsKeyword(word))
+                        //{
+                        //    var tag = new Keyword()
+                        //    {
+                        //        StartPosition = run.ContentStart.GetPositionAtOffset(startId, LogicalDirection.Forward),
+                        //        EndPosition = run.ContentStart.GetPositionAtOffset(endId + 1, LogicalDirection.Backward),
+                        //        Word = word
+                        //    };
+                        //    res.Add(tag);
+                        //}
+
+                        var keyword = new Keyword()
                         {
-                            var tag = new Tag()
-                            {
-                                StartPosition = run.ContentStart.GetPositionAtOffset(startId, LogicalDirection.Forward),
-                                EndPosition = run.ContentStart.GetPositionAtOffset(endId + 1, LogicalDirection.Backward)
-                            };
-                            res.Add(tag);
-                        }
+                            StartPosition = run.ContentStart.GetPositionAtOffset(startId, LogicalDirection.Forward),
+                            EndPosition = run.ContentStart.GetPositionAtOffset(endId + 1, LogicalDirection.Backward),
+                            Word = word
+                        };
+
+                        language.TryPut(keyword);
+
+                        //res.Add(tag);
                     }
 
                     startId = i + 1;
@@ -128,30 +149,27 @@ namespace SynergyTextEditor.Classes
             }
 
             var lastword = text.Substring(startId, text.Length - startId);
-            if (IsKeyword(lastword))
-            {
-                var tag = new Tag()
-                {
-                    StartPosition = run.ContentStart.GetPositionAtOffset(startId, LogicalDirection.Forward),
-                    EndPosition = run.ContentStart.GetPositionAtOffset(text.Length, LogicalDirection.Backward)
-                };
-                res.Add(tag);
-            }
+            //if (IsKeyword(lastword))
+            //{
+            //    var tag = new Keyword()
+            //    {
+            //        StartPosition = run.ContentStart.GetPositionAtOffset(startId, LogicalDirection.Forward),
+            //        EndPosition = run.ContentStart.GetPositionAtOffset(text.Length, LogicalDirection.Backward),
+            //        Word = lastword
+            //    };
+            //    res.Add(tag);
+            //}
 
-            return res;
-        }
-
-        private bool IsKeyword(string word)
-        {
-            var keywords = new List<string>()
+            var lkeyword = new Keyword()
             {
-                "object",
-                "string",
-                "int",
-                "var"
+                StartPosition = run.ContentStart.GetPositionAtOffset(startId, LogicalDirection.Forward),
+                EndPosition = run.ContentStart.GetPositionAtOffset(text.Length, LogicalDirection.Backward),
+                Word = lastword
             };
 
-            return keywords.Contains(word);
+            language.TryPut(lkeyword);
+
+            return res;
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using SynergyTextEditor.Classes;
+﻿using Microsoft.Extensions.DependencyInjection;
+using SynergyTextEditor.Classes;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -14,13 +15,20 @@ namespace SynergyTextEditor
     /// </summary>
     public partial class App : Application
     {
+        public App()
+        {
+            InitializeComponent();
+        }
+
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
 
             AppThemeController.Instance.SetTheme("dark");
 
-            MainWindow = new MainWindow();
+            var dicts = App.Current.Resources.MergedDictionaries;
+
+            MainWindow = Program.AppHost.Services.GetRequiredService<MainWindow>();
             MainWindow.Show();
         }
     }

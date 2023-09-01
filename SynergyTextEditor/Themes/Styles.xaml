@@ -4,7 +4,7 @@
     <ResourceDictionary.MergedDictionaries>
         <ResourceDictionary Source="pack://application:,,,/Themes/MenuStyle.xaml"/>
     </ResourceDictionary.MergedDictionaries>
-    
+
     <Style TargetType="RichTextBox">
         <Setter Property="Background" Value="{DynamicResource RichTextBox.Background}"/>
         <Setter Property="Foreground" Value="{DynamicResource RichTextBox.Foreground}"/>

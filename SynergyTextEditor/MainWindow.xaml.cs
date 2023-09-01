@@ -14,6 +14,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using static SynergyTextEditor.Classes.LanguageLoader.LanguageSerializable.KeywordGroupSerializable;
 
 namespace SynergyTextEditor
 {
@@ -36,6 +37,7 @@ namespace SynergyTextEditor
                     LightThemeSetting.IsChecked = true;
                     break;
                 case "dark":
+                default:
                     DarkThemeSetting.IsChecked = true;
                     break;
             }
@@ -47,7 +49,133 @@ namespace SynergyTextEditor
             DataContext = viewModel = vm;
             CommandBindings.AddRange(viewModel.CommandBindings);
 
-            textHighlighter = new TextHighlighter(Editor);     
+            textHighlighter = new TextHighlighter(Editor);
+
+            //CreateHighlightLanguage();
+        }
+
+        private static void CreateHighlightLanguage()
+        {
+            var lang = new LanguageLoader.LanguageSerializable();
+            lang.languageName = "C#";
+
+            var blueGroup = new LanguageLoader.LanguageSerializable.KeywordGroupSerializable();
+            blueGroup.keywordGroupType = KeywordGroupType.Normal;
+            blueGroup.keywords = new List<string>()
+            {
+                "abstract",
+                "as",
+                "base",
+                "bool",
+                "byte",
+                "char",
+                "checked",
+                "class",
+                "const",
+                "decimal",
+                "delegate",
+                "double",
+                "enum",
+                "event",
+                "explicit",
+                "extern",
+                "false",
+                "fixed",
+                "float",
+                "for",
+                "implicit",
+                "int",
+                "interface",
+                "internal",
+                "is",
+                "lock",
+                "long",
+                "namespace",
+                "new",
+                "null",
+                "object",
+                "operator",
+                "out",
+                "override",
+                "params",
+                "private",
+                "protected",
+                "public",
+                "readonly",
+                "ref",
+                "sbyte",
+                "sealed",
+                "short",
+                "sizeof",
+                "stackalloc",
+                "static",
+                "string",
+                "struct",
+                "this",
+                "true",
+                "typeof",
+                "uint",
+                "ulong",
+                "unchecked",
+                "unsafe",
+                "ushort",
+                "using",
+                "virtual",
+                "void",
+                "var",
+                "volatile", "async",
+                "await", "get", "set", "global", "nameof", "dynamic", "partial",
+                "unmanaged", "value", "yield", "record"
+            };
+            blueGroup.styles = new()
+            {
+                 new TupleSerializable<string, string>("ForegroundProperty", "solid(86,156,203)")
+            };
+
+            var purpleGroup = new LanguageLoader.LanguageSerializable.KeywordGroupSerializable();
+            purpleGroup.keywordGroupType = KeywordGroupType.Normal;
+            purpleGroup.keywords = new List<string>()
+            {
+                "do", "while", "foreach", "break", "continue", "goto",
+                "case", "default", "switch", "return", "try", "catch",
+                "finally", "throw", "if", "else", "in"
+            };
+            purpleGroup.styles = new()
+            {
+                new TupleSerializable < string, string > ("ForegroundProperty", "solid(216, 160, 223)")
+            };
+
+            var special1Group = new LanguageLoader.LanguageSerializable.KeywordGroupSerializable();
+            special1Group.keywordGroupType = KeywordGroupType.Special;
+            special1Group.keywords = new List<string>()
+            {
+                "{","}","(",")","[","]"
+            };
+            special1Group.styles = new()
+            {
+                new TupleSerializable<string, string>("FontWeightProperty", "Bold")
+            };
+
+            var special2Group = new LanguageLoader.LanguageSerializable.KeywordGroupSerializable();
+            special2Group.keywordGroupType = KeywordGroupType.Special;
+            special2Group.keywords = new List<string>()
+            {
+                ".",",","&","*","/","<",">","=","+","-","|","^","!",":",";","?","%"
+            };
+            special2Group.styles = new()
+            {
+
+            };
+
+            lang.keywordGroups = new()
+            {
+                blueGroup,
+                purpleGroup,
+                special1Group,
+                special2Group
+            };
+
+            LanguageLoader.Save(lang, "C:\\Users\\Влад\\Desktop\\CSlangHighlight.xaml");
         }
 
         private void MenuSettingsThemeLight_Click(object sender, RoutedEventArgs e)
