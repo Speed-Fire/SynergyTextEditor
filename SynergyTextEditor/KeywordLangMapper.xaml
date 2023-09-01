@@ -3,20 +3,20 @@
   <_extensionDictionary>
     <item>
       <key>
-        <string>.extension</string>
+        <string>.cs</string>
       </key>
       <value>
-        <string>KeywordLanguagePath</string>
+        <string>CSlangHighlight.xaml</string>
       </value>
     </item>
   </_extensionDictionary>
   <_languageNameDictionary>
     <item>
       <key>
-        <string>testName</string>
+        <string>C#</string>
       </key>
       <value>
-        <string>KeywordLanguagePath</string>
+        <string>CSlangHighlight.xaml</string>
       </value>
     </item>
   </_languageNameDictionary>

@@ -21,6 +21,7 @@
 
   <ItemGroup>
     <Page Remove="KeywordLangMapper.xaml" />
+    <Page Remove="KeywordLanguages\CSlangHighlight.xaml" />
   </ItemGroup>
 
   <ItemGroup>
@@ -34,6 +35,9 @@
     </Page>
     <None Include="AssemblyInfo.cs" />
     <None Include="KeywordLangMapper.xaml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="KeywordLanguages\CSlangHighlight.xaml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
