@@ -16,7 +16,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using static SynergyTextEditor.Classes.LanguageLoader.LanguageSerializable.KeywordGroupSerializable;
+using static SynergyTextEditor.Classes.KeywordLanguageLoader.KeywordLanguageSerializable.KeywordGroupSerializable;
 
 namespace SynergyTextEditor
 {
@@ -63,10 +63,10 @@ namespace SynergyTextEditor
 
         private static void CreateHighlightLanguage()
         {
-            var lang = new LanguageLoader.LanguageSerializable();
+            var lang = new KeywordLanguageLoader.KeywordLanguageSerializable();
             lang.languageName = "C#";
 
-            var blueGroup = new LanguageLoader.LanguageSerializable.KeywordGroupSerializable();
+            var blueGroup = new KeywordLanguageLoader.KeywordLanguageSerializable.KeywordGroupSerializable();
             blueGroup.keywordGroupType = KeywordGroupType.Normal;
             blueGroup.keywords = new List<string>()
             {
@@ -139,7 +139,7 @@ namespace SynergyTextEditor
                  new TupleSerializable<string, string>("ForegroundProperty", "solid(86,156,203)")
             };
 
-            var purpleGroup = new LanguageLoader.LanguageSerializable.KeywordGroupSerializable();
+            var purpleGroup = new KeywordLanguageLoader.KeywordLanguageSerializable.KeywordGroupSerializable();
             purpleGroup.keywordGroupType = KeywordGroupType.Normal;
             purpleGroup.keywords = new List<string>()
             {
@@ -152,7 +152,7 @@ namespace SynergyTextEditor
                 new TupleSerializable < string, string > ("ForegroundProperty", "solid(216, 160, 223)")
             };
 
-            var special1Group = new LanguageLoader.LanguageSerializable.KeywordGroupSerializable();
+            var special1Group = new KeywordLanguageLoader.KeywordLanguageSerializable.KeywordGroupSerializable();
             special1Group.keywordGroupType = KeywordGroupType.Special;
             special1Group.keywords = new List<string>()
             {
@@ -163,7 +163,7 @@ namespace SynergyTextEditor
                 new TupleSerializable<string, string>("FontWeightProperty", "Bold")
             };
 
-            var special2Group = new LanguageLoader.LanguageSerializable.KeywordGroupSerializable();
+            var special2Group = new KeywordLanguageLoader.KeywordLanguageSerializable.KeywordGroupSerializable();
             special2Group.keywordGroupType = KeywordGroupType.Special;
             special2Group.keywords = new List<string>()
             {
@@ -182,7 +182,9 @@ namespace SynergyTextEditor
                 special2Group
             };
 
-            LanguageLoader.Save(lang, "C:\\Users\\Влад\\Desktop\\CSlangHighlight.xaml");
+            var loader = new KeywordLanguageLoader();
+
+            loader.Save(lang, "C:\\Users\\Влад\\Desktop\\CSlangHighlight.xaml");
         }
 
         private void MenuSettingsThemeLight_Click(object sender, RoutedEventArgs e)

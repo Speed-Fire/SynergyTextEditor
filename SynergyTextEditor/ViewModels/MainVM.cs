@@ -61,7 +61,7 @@ namespace SynergyTextEditor.ViewModels
 
                 textEditor.Open(ofd.FileName);
 
-                WeakReferenceMessenger.Default.Send(new FileOpenedMessage(0));
+                WeakReferenceMessenger.Default.Send(new FileOpenedMessage(ofd.FileName));
 
                 WeakReferenceMessenger.Default.Register<TextChangedMessage>(textEditor, (r, m) =>
                 {

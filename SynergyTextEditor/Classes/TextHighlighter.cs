@@ -1,4 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.Messaging;
+using Microsoft.Extensions.DependencyInjection;
 using SynergyTextEditor.Classes.Extensions;
 using SynergyTextEditor.Messages;
 using System;
@@ -14,6 +15,7 @@ using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Interop;
 using System.Windows.Media;
+using System.Windows.Threading;
 
 #nullable disable
 
@@ -22,37 +24,36 @@ namespace SynergyTextEditor.Classes
     public class TextHighlighter : IRecipient<TextChangedMessage>, IRecipient<FileOpenedMessage>
     {
         private readonly RichTextBox rtb;
+        private readonly IKeywordLanguageSelector languageSelector;
 
-        private Language language;
+        private KeywordLanguage language;
 
         public TextHighlighter(RichTextBox rtb)
         {
-            this.rtb = rtb;
-            
+            this.rtb = rtb;    
+            languageSelector = Program.AppHost.Services.GetService<IKeywordLanguageSelector>();
+
             WeakReferenceMessenger.Default.RegisterAll(this);
 
-            language = LanguageLoader.Load("C:\\Users\\Влад\\Desktop\\CSlangHighlight.xaml");
+            //language = KeywordLanguageLoader.Load("C:\\Users\\Влад\\Desktop\\CSlangHighlight.xaml");
         }
 
         public void TextChanged(object sender, TextChangedEventArgs e)
         {
-            lock (locker)
+            if (rtb.Document is null)
+                return;
+
+            if (e.Changes.Count == 0) return;
+
+            // Get current paragraph (row)
+            /// this optimization won't work with multirow text styling (such as commentaries in VS)
+            var paragraph = rtb.Document.ContentStart.GetPositionAtOffset(e.Changes.First().Offset).Paragraph;
+            if (paragraph is null)
             {
-                if (rtb.Document is null)
-                    return;
-
-                if (e.Changes.Count == 0) return;
-
-                // Get current paragraph (row)
-                /// this optimization won't work with multirow text styling (such as commentaries in VS)
-                var paragraph = rtb.Document.ContentStart.GetPositionAtOffset(e.Changes.First().Offset).Paragraph;
-                if (paragraph is null)
-                {
-                    return;
-                }
-
-                Highlight(paragraph.ContentStart, paragraph.ContentEnd);
+                return;
             }
+
+            Highlight(paragraph.ContentStart, paragraph.ContentEnd);
         }
 
         public void FullHighlight()
@@ -67,6 +68,9 @@ namespace SynergyTextEditor.Classes
 
         private void Highlight(TextPointer start, TextPointer end)
         {
+            if (language is null)
+                return;
+
             // Unsubscribe from TextChanged
             WeakReferenceMessenger.Default.Unregister<TextChangedMessage>(this);
             
@@ -85,8 +89,8 @@ namespace SynergyTextEditor.Classes
 
                 if (context == TextPointerContext.ElementStart && navigator.Parent is Run run)
                 {
-                    if (run.Text != "")
-                        tags.AddRange(GetTagsFromRun(run));
+                        if (run.Text != "")
+                            tags.AddRange(GetTagsFromRun(run));
                 }
             }
 

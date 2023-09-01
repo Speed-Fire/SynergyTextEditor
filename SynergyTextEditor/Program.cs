@@ -22,8 +22,10 @@ namespace SynergyTextEditor
 
             builder.ConfigureServices(services =>
             {
-                services.RegisterConverters();
-                services.RegisterDPConverters();
+                services
+                    .RegisterConverters()
+                    .RegisterDPConverters()
+                    .RegisterHighlightingSystem();
 
                 services.AddSingleton<App>();
                 services.AddSingleton<MainWindow>();

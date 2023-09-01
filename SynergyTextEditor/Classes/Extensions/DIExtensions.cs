@@ -20,6 +20,15 @@ namespace SynergyTextEditor.Classes.Extensions
             return services;
         }
 
+        public static IServiceCollection RegisterHighlightingSystem(this IServiceCollection services)
+        {
+            services
+                .AddSingleton<IKeywordLanguageLoader, KeywordLanguageLoader>()
+                .AddTransient<IKeywordLanguageSelector, KeywordLanguageSelector>();
+            
+            return services;
+        }
+
         public static IServiceCollection RegisterDPConverters(this IServiceCollection services)
         {
 

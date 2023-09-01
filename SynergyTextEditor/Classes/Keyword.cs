@@ -15,16 +15,20 @@ using System.Xml.Serialization;
 
 namespace SynergyTextEditor.Classes
 {
-    public class Language
+    public class KeywordLanguage
     {
         public string Name { get; private set; }
 
         private List<KeywordGroup> keywordGroups;
+        private List<string> fileExtensions;
 
-        public Language(string name, List<KeywordGroup> keywordGroups)
+        public IEnumerable<string> FileExtensions => fileExtensions;
+
+        public KeywordLanguage(string name, List<KeywordGroup> keywordGroups, List<string> fileExtensions)
         {
             Name = name;
             this.keywordGroups = keywordGroups;
+            this.fileExtensions = fileExtensions;
         }
 
         public bool IsSpecial(string key)
@@ -137,15 +141,19 @@ namespace SynergyTextEditor.Classes
         }
     }
 
-    public static class LanguageLoader
+    public interface IKeywordLanguageLoader
     {
-        //private static Dictionary<string, DependencyProperty> 
+        public KeywordLanguage Load(string path);
+    }
 
+    public class KeywordLanguageLoader : IKeywordLanguageLoader
+    {
         [Serializable]
-        public class LanguageSerializable
+        public class KeywordLanguageSerializable
         {
             public string languageName;
             public List<KeywordGroupSerializable> keywordGroups;
+            public List<string> fileExtensions;
 
             [Serializable]
             public class KeywordGroupSerializable
@@ -156,18 +164,18 @@ namespace SynergyTextEditor.Classes
             }
         }
 
-        public static Language Load(string path)
+        public KeywordLanguage Load(string path)
         {
             if (!File.Exists(path))
                 throw new FileNotFoundException(path);
 
-            Language res = null;
-            var formatter = new XmlSerializer(typeof(LanguageSerializable));
+            KeywordLanguage res = null;
+            var formatter = new XmlSerializer(typeof(KeywordLanguageSerializable));
 
-            LanguageSerializable deser;
+            KeywordLanguageSerializable deser;
             using(var fs = File.OpenRead(path))
             {
-                deser = formatter.Deserialize(fs) as LanguageSerializable;
+                deser = formatter.Deserialize(fs) as KeywordLanguageSerializable;
             }
 
             var converter = Program.AppHost.Services.GetService<IConverter<TupleSerializable<string, string>, Tuple<DependencyProperty, object>>>();
@@ -180,14 +188,14 @@ namespace SynergyTextEditor.Classes
                 groups.Add(new KeywordGroup(group.keywords, styles, group.keywordGroupType));
             }
 
-            res = new Language(deser.languageName, groups);
+            res = new KeywordLanguage(deser.languageName, groups, deser.fileExtensions);
 
             return res;
         }
 
-        public static void Save(LanguageSerializable language, string path)
+        public void Save(KeywordLanguageSerializable language, string path)
         {
-            var formatter = new XmlSerializer(typeof(LanguageSerializable));
+            var formatter = new XmlSerializer(typeof(KeywordLanguageSerializable));
 
             using(var fs = File.OpenWrite(path))
             {
