@@ -67,7 +67,9 @@ namespace SynergyTextEditor.Classes
         {
             var formatter = new XmlSerializer(typeof(KeywordLanguageMapper));
 
-            using(var fs = File.OpenWrite(keywordLanguageMapperPath))
+            var path = Directory.GetCurrentDirectory() + keywordLanguageMapperPath;
+
+            using(var fs = File.OpenWrite(path))
             {
                 formatter.Serialize(fs, _keywordLanguageMapper);
             }
@@ -104,7 +106,7 @@ namespace SynergyTextEditor.Classes
 
                 var languagePath =
                     Directory.GetCurrentDirectory()
-                    + keywordLanguageMapperPath
+                    + keywordLanguageDirectory
                     + _keywordLanguageMapper._extensionDictionary[fileExt];
 
                 return keywordLanguageLoader.Load(languagePath);
@@ -179,8 +181,16 @@ namespace SynergyTextEditor.Classes
                             + localCopyPath;
                     }
 
+                    // Create keywordLanguageDirectory if it doesn't exist
+                    var dirPath =
+                        Directory.GetCurrentDirectory()
+                        + keywordLanguageDirectory;
+
+                    if(!Directory.Exists(dirPath))
+                        Directory.CreateDirectory(dirPath);
+
                     // Make a copy
-                    File.Copy(path, copyPath, false);
+                    File.Copy(path, copyPath);
 
                     // Fill _keywordLanguageMapper with new extensions
                     foreach (var ext in lang.FileExtensions)

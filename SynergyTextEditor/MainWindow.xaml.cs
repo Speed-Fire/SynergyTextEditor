@@ -182,6 +182,11 @@ namespace SynergyTextEditor
                 special2Group
             };
 
+            lang.fileExtensions = new()
+            {
+                ".cs"
+            };
+
             var loader = new KeywordLanguageLoader();
 
             loader.Save(lang, "C:\\Users\\Влад\\Desktop\\CSlangHighlight.xaml");
