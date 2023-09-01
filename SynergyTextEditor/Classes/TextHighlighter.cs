@@ -22,7 +22,10 @@ using System.Windows.Threading;
 
 namespace SynergyTextEditor.Classes
 {
-    public class TextHighlighter : IRecipient<TextChangedMessage>, IRecipient<FileOpenedMessage>
+    public class TextHighlighter : 
+        IRecipient<TextChangedMessage>,
+        IRecipient<FileOpenedMessage>,
+        IRecipient<KeywordLanguageUploadedMessage>
     {
         private readonly RichTextBox rtb;
         private readonly IKeywordLanguageSelector languageSelector;
@@ -198,6 +201,19 @@ namespace SynergyTextEditor.Classes
             language = languageSelector.GetLanguage(Path.GetExtension(message.Value));
 
             FullHighlight();
+        }
+
+        void IRecipient<KeywordLanguageUploadedMessage>.Receive(KeywordLanguageUploadedMessage message)
+        {
+            WeakReferenceMessenger.Default.Send(new BlockTextEditorChangeStateMessage(true));
+
+            string filename = WeakReferenceMessenger.Default.Send<OpenedFileNameRequestMessage>();
+
+            language = languageSelector.GetLanguage(Path.GetExtension(filename));
+
+            FullHighlight();
+
+            WeakReferenceMessenger.Default.Send(new BlockTextEditorChangeStateMessage(false));
         }
 
         #endregion

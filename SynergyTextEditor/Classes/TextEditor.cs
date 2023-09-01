@@ -1,5 +1,7 @@
-﻿using Microsoft.Win32;
+﻿using CommunityToolkit.Mvvm.Messaging;
+using Microsoft.Win32;
 using SynergyTextEditor.Classes.SavingStrategies;
+using SynergyTextEditor.Messages;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -15,13 +17,18 @@ using System.Windows.Documents;
 
 namespace SynergyTextEditor.Classes
 {
-    public class TextEditor : INotifyPropertyChanged
+    public class TextEditor :
+        INotifyPropertyChanged,
+        IRecipient<TextChangedMessage>,
+        IRecipient<BlockTextEditorChangeStateMessage>
     {
         public event PropertyChangedEventHandler PropertyChanged;
 
         private Dictionary<string, ISavingStrategy> SavingStrategies = new();
 
         public bool IsTextChanged { get; private set; } = false;
+        private bool IsTextChangedBlocked { get; set; } = false;
+
 
         private readonly FlowDocument document;
 
@@ -29,6 +36,8 @@ namespace SynergyTextEditor.Classes
         {
             InitSavingStrategies();
             this.document = document;
+
+            WeakReferenceMessenger.Default.RegisterAll(this);
         }
 
         public TextEditor(FlowDocument document, string path)
@@ -112,8 +121,15 @@ namespace SynergyTextEditor.Classes
             }
         }
 
+        private void BlockOnTextChanged(bool val)
+        {
+            IsTextChangedBlocked = val;
+        }
+
         public void OnTextChanged(TextChangedEventArgs e)
         {
+            if(IsTextChangedBlocked) return;
+
             IsTextChanged = true;
         }
 
@@ -121,5 +137,19 @@ namespace SynergyTextEditor.Classes
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
+
+        #region Message handlers
+
+        void IRecipient<TextChangedMessage>.Receive(TextChangedMessage message)
+        {
+            OnTextChanged(message.Value);
+        }
+
+        void IRecipient<BlockTextEditorChangeStateMessage>.Receive(BlockTextEditorChangeStateMessage message)
+        {
+            BlockOnTextChanged(message.Value);
+        }
+
+        #endregion
     }
 }

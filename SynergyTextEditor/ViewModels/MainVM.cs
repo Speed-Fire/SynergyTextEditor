@@ -34,9 +34,14 @@ namespace SynergyTextEditor.ViewModels
 
             textEditor = new TextEditor(document);
 
-            WeakReferenceMessenger.Default.Register<TextChangedMessage>(textEditor, (r, m) =>
+            //WeakReferenceMessenger.Default.Register<TextChangedMessage>(textEditor, (r, m) =>
+            //{
+            //    textEditor.OnTextChanged(m.Value);
+            //});
+
+            WeakReferenceMessenger.Default.Register<OpenedFileNameRequestMessage>(this, (r, m) =>
             {
-                textEditor.OnTextChanged(m.Value);
+                m.Reply(OpenedFile);
             });
 
             CommandBindings.Add(new CommandBinding(ApplicationCommands.Open, OpenFile));
@@ -64,16 +69,20 @@ namespace SynergyTextEditor.ViewModels
 
             if (ofd.ShowDialog() == true)
             {
-                WeakReferenceMessenger.Default.Unregister<TextChangedMessage>(textEditor);
+                //WeakReferenceMessenger.Default.Unregister<TextChangedMessage>(textEditor);
+                WeakReferenceMessenger.Default.Send(new BlockTextEditorChangeStateMessage(true));
 
                 textEditor.Open(ofd.FileName);
 
                 WeakReferenceMessenger.Default.Send(new FileOpenedMessage(ofd.FileName));
 
-                WeakReferenceMessenger.Default.Register<TextChangedMessage>(textEditor, (r, m) =>
-                {
-                    textEditor.OnTextChanged(m.Value);
-                });
+                WeakReferenceMessenger.Default.Send(new BlockTextEditorChangeStateMessage(false));
+                //WeakReferenceMessenger.Default.Register<TextChangedMessage>(textEditor, (r, m) =>
+                //{
+                //    textEditor.OnTextChanged(m.Value);
+                //});
+
+                OpenedFile = ofd.FileName;
             }
         }
 

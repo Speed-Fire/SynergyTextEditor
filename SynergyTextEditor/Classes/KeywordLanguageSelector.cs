@@ -9,6 +9,8 @@ using static SynergyTextEditor.Classes.KeywordLanguageLoader;
 using System.Xml.Serialization;
 using System.Text.RegularExpressions;
 using SynergyTextEditor.Classes.Utilities;
+using CommunityToolkit.Mvvm.Messaging;
+using SynergyTextEditor.Messages;
 
 #nullable disable
 
@@ -203,6 +205,8 @@ namespace SynergyTextEditor.Classes
 
                     // Save updated _keywordLanguageMapper
                     SaveKeywordLanguageMapper();
+
+                    WeakReferenceMessenger.Default.Send(new KeywordLanguageUploadedMessage(""));
 
                     return true;
                 }
