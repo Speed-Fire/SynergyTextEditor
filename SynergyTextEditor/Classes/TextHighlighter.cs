@@ -1,4 +1,7 @@
-﻿using System;
+﻿using CommunityToolkit.Mvvm.Messaging;
+using SynergyTextEditor.Classes.Extensions;
+using SynergyTextEditor.Messages;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,7 +19,7 @@ using System.Windows.Media;
 
 namespace SynergyTextEditor.Classes
 {
-    public class TextHighlighter
+    public class TextHighlighter : IRecipient<TextChangedMessage>, IRecipient<FileOpenedMessage>
     {
         private readonly RichTextBox rtb;
 
@@ -25,44 +28,62 @@ namespace SynergyTextEditor.Classes
         public TextHighlighter(RichTextBox rtb)
         {
             this.rtb = rtb;
+            
+            WeakReferenceMessenger.Default.RegisterAll(this);
 
             language = LanguageLoader.Load("C:\\Users\\Влад\\Desktop\\CSlangHighlight.xaml");
-
-            rtb.TextChanged += TextChanged;
         }
 
         public void TextChanged(object sender, TextChangedEventArgs e)
         {
+            lock (locker)
+            {
+                if (rtb.Document is null)
+                    return;
+
+                if (e.Changes.Count == 0) return;
+
+                // Get current paragraph (row)
+                /// this optimization won't work with multirow text styling (such as commentaries in VS)
+                var paragraph = rtb.Document.ContentStart.GetPositionAtOffset(e.Changes.First().Offset).Paragraph;
+                if (paragraph is null)
+                {
+                    return;
+                }
+
+                Highlight(paragraph.ContentStart, paragraph.ContentEnd);
+            }
+        }
+
+        public void FullHighlight()
+        {
             if (rtb.Document is null)
                 return;
 
-            if(e.Changes.Count == 0) return;
+            Highlight(rtb.Document.ContentStart, rtb.Document.ContentEnd);
+        }
 
-            rtb.TextChanged -= TextChanged;
+        private object locker = new();
 
-            // Get current paragraph (row)
-            /// this optimization won't work with multirow text styling (such as commentaries in VS)
-            var paragraph = rtb.Document.ContentStart.GetPositionAtOffset(e.Changes.First().Offset).Paragraph;
-            if(paragraph is null)
-            {
-                rtb.TextChanged += TextChanged;
-                return;
-            }
-
-            // clear all text styling in the paragraph
-            var range = new TextRange(paragraph.ContentStart, paragraph.ContentEnd);
+        private void Highlight(TextPointer start, TextPointer end)
+        {
+            // Unsubscribe from TextChanged
+            WeakReferenceMessenger.Default.Unregister<TextChangedMessage>(this);
+            
+            // clear all text styling in the range
+            var range = new TextRange(start, end);
             range.ClearAllProperties();
 
             List<Keyword> tags = new();
 
-            // Find all keywords in the paragraph
-            for (var navigator = /*rtb.Document*/paragraph.ContentStart;
-                navigator.CompareTo(/*rtb.Document*/paragraph.ContentEnd) < 0;
+            // Find all keywords in the range
+            for (var navigator = start;
+                navigator.CompareTo(end) < 0;
                 navigator = navigator.GetNextContextPosition(LogicalDirection.Forward))
             {
                 var context = navigator.GetPointerContext(LogicalDirection.Backward);
 
-                if(context == TextPointerContext.ElementStart && navigator.Parent is Run run)
+                if (context == TextPointerContext.ElementStart && navigator.Parent is Run run)
                 {
                     if (run.Text != "")
                         tags.AddRange(GetTagsFromRun(run));
@@ -70,22 +91,10 @@ namespace SynergyTextEditor.Classes
             }
 
             // when all keywords are found, styling them
-            //for (int i = 0; i < tags.Count; i++) 
-            //{
-            //    try
-            //    {
-            //        var colorRange = new TextRange(tags[i].StartPosition, tags[i].EndPosition);
-            //        colorRange.ApplyPropertyValue(TextElement.ForegroundProperty,
-            //            new SolidColorBrush(Color.FromRgb(82, 156, 214)));
-            //        //colorRange.ApplyPropertyValue(TextElement.FontWeightProperty,
-            //        //    FontWeights.Bold);
-            //    }
-            //    catch { }
-            //}
-
             language.ApplyStyling();
 
-            rtb.TextChanged += TextChanged;
+            // Subscribe to TextChanged
+            WeakReferenceMessenger.Default.Register<TextChangedMessage>(this);
         }
 
         private List<Keyword> GetTagsFromRun(Run run)
@@ -171,5 +180,19 @@ namespace SynergyTextEditor.Classes
 
             return res;
         }
+
+        #region Message handlers
+
+        void IRecipient<TextChangedMessage>.Receive(TextChangedMessage message)
+        {
+            TextChanged(null, message.Value);
+        }
+
+        void IRecipient<FileOpenedMessage>.Receive(FileOpenedMessage message)
+        {
+            FullHighlight();
+        }
+
+        #endregion
     }
 }

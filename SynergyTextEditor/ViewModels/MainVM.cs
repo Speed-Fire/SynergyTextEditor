@@ -1,6 +1,8 @@
-﻿using Microsoft.Win32;
+﻿using CommunityToolkit.Mvvm.Messaging;
+using Microsoft.Win32;
 using SynergyTextEditor.Classes;
 using SynergyTextEditor.Commands;
+using SynergyTextEditor.Messages;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,8 +22,6 @@ namespace SynergyTextEditor.ViewModels
     {
         private readonly TextEditor textEditor;
 
-        private event Action<TextChangedEventArgs> TextChanged;
-
         private string OpenedFile { get; set; } = "";
 
         private bool IsFileOpen => !string.IsNullOrWhiteSpace(OpenedFile);
@@ -30,7 +30,10 @@ namespace SynergyTextEditor.ViewModels
         {
             textEditor = new TextEditor(document);
 
-            TextChanged += textEditor.OnTextChanged;
+            WeakReferenceMessenger.Default.Register<TextChangedMessage>(textEditor, (r, m) =>
+            {
+                textEditor.OnTextChanged(m.Value);
+            });
 
             CommandBindings.Add(new CommandBinding(ApplicationCommands.Open, OpenFile));
             CommandBindings.Add(new CommandBinding(ApplicationCommands.New, CreateFile));
@@ -54,11 +57,16 @@ namespace SynergyTextEditor.ViewModels
 
             if (ofd.ShowDialog() == true)
             {
-                TextChanged -= textEditor.OnTextChanged;
+                WeakReferenceMessenger.Default.Unregister<TextChangedMessage>(textEditor);
 
                 textEditor.Open(ofd.FileName);
 
-                TextChanged += textEditor.OnTextChanged;
+                WeakReferenceMessenger.Default.Send(new FileOpenedMessage(0));
+
+                WeakReferenceMessenger.Default.Register<TextChangedMessage>(textEditor, (r, m) =>
+                {
+                    textEditor.OnTextChanged(m.Value);
+                });
             }
         }
 
@@ -111,11 +119,6 @@ namespace SynergyTextEditor.ViewModels
             }));
 
         #endregion
-
-        public void OnTextChanged(object sender, TextChangedEventArgs e)
-        {
-            TextChanged?.Invoke(e);
-        }
 
         private void RequestSaving(object sender, ExecutedRoutedEventArgs e)
         {

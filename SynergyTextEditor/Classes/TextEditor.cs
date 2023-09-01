@@ -75,6 +75,8 @@ namespace SynergyTextEditor.Classes
                         break;
                 }
             }
+
+            IsTextChanged = false;
         }
 
         public bool Create(bool force = false)

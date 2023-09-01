@@ -1,4 +1,6 @@
-﻿using SynergyTextEditor.Classes;
+﻿using CommunityToolkit.Mvvm.Messaging;
+using SynergyTextEditor.Classes;
+using SynergyTextEditor.Messages;
 using SynergyTextEditor.ViewModels;
 using System;
 using System.Collections.Generic;
@@ -44,7 +46,7 @@ namespace SynergyTextEditor
 
             var vm = new MainVM(Editor.Document);
 
-            Editor.TextChanged += vm.OnTextChanged;
+            Editor.TextChanged += Editor_TextChanged;
 
             DataContext = viewModel = vm;
             CommandBindings.AddRange(viewModel.CommandBindings);
@@ -52,6 +54,11 @@ namespace SynergyTextEditor
             textHighlighter = new TextHighlighter(Editor);
 
             //CreateHighlightLanguage();
+        }
+
+        private void Editor_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            WeakReferenceMessenger.Default.Send(new TextChangedMessage(e));
         }
 
         private static void CreateHighlightLanguage()
