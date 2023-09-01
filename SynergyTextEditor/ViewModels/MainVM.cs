@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Win32;
 using SynergyTextEditor.Classes;
 using SynergyTextEditor.Messages;
@@ -21,6 +22,7 @@ namespace SynergyTextEditor.ViewModels
     public class MainVM : BaseViewModel
     {
         private readonly TextEditor textEditor;
+        private readonly IKeywordLanguageSelector languageSelector;
 
         private string OpenedFile { get; set; } = "";
 
@@ -28,6 +30,8 @@ namespace SynergyTextEditor.ViewModels
 
         public MainVM(FlowDocument document)
         {
+            languageSelector = Program.AppHost.Services.GetRequiredService<IKeywordLanguageSelector>();
+
             textEditor = new TextEditor(document);
 
             WeakReferenceMessenger.Default.Register<TextChangedMessage>(textEditor, (r, m) =>
@@ -52,8 +56,11 @@ namespace SynergyTextEditor.ViewModels
         {
             RequestSaving(sender, e);
 
-            OpenFileDialog ofd = new OpenFileDialog();
-            ofd.Filter = "RichText Files (*.rtf)|*.rtf|XAML/XML files (*.xml/*.xaml)|*.xml,*.xaml|Text files (*.txt)|*.txt|All files (*.*)|*.*";
+            OpenFileDialog ofd = new OpenFileDialog()
+            {
+                Multiselect = false
+            };
+            ofd.Filter = "RichText Files (*.rtf)|*.rtf|XAML/XML files (*.xml; *.xaml)|*.xml;*.xaml|Text files (*.txt)|*.txt|All files (*.*)|*.*";
 
             if (ofd.ShowDialog() == true)
             {
@@ -104,6 +111,44 @@ namespace SynergyTextEditor.ViewModels
             (setTheme = new RelayCommand<string>(theme =>
             {
                 AppThemeController.Instance.SetTheme(theme as string);
+            }));
+
+        private RelayCommand uploadSyntax;
+        public RelayCommand UploadSyntax => uploadSyntax ??
+            (uploadSyntax = new RelayCommand(() =>
+            {
+                OpenFileDialog ofd = new OpenFileDialog()
+                {
+                    Multiselect = false
+                };
+                ofd.Filter = "XAML/XML files (*.xml; *.xaml)|*.xml;*.xaml|Text files (*.txt)|*.txt";
+
+                if(ofd.ShowDialog() == true)
+                {
+                    Exception ex;
+
+                    if(languageSelector.UploadLanguage(ofd.FileName, out ex))
+                    {
+                        MessageBox.Show("Syntax is successful uploaded.",
+                            "Information",
+                            MessageBoxButton.OK,
+                            MessageBoxImage.Information);
+                    }
+                    else
+                    {
+                        MessageBox.Show($"Failed to upload syntax:\n{ex.Message}.",
+                            "Error",
+                            MessageBoxButton.OK,
+                            MessageBoxImage.Error);
+                    }
+                }
+            }));
+
+        private RelayCommand<string> selectSyntax;
+        public RelayCommand<string> SelectSyntax => selectSyntax ??
+            (selectSyntax = new RelayCommand<string>(langName =>
+            {
+
             }));
 
         #endregion
