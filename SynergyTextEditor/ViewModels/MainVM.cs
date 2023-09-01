@@ -1,7 +1,7 @@
-﻿using CommunityToolkit.Mvvm.Messaging;
+﻿using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Win32;
 using SynergyTextEditor.Classes;
-using SynergyTextEditor.Commands;
 using SynergyTextEditor.Messages;
 using System;
 using System.Collections.Generic;
@@ -99,23 +99,11 @@ namespace SynergyTextEditor.ViewModels
 
         #region Commands
 
-        private RelayCommand setTheme;
-        public RelayCommand SetTheme => setTheme ??
-            (setTheme = new RelayCommand(theme =>
+        private RelayCommand<string> setTheme;
+        public RelayCommand<string> SetTheme => setTheme ??
+            (setTheme = new RelayCommand<string>(theme =>
             {
-                switch(theme as string)
-                {
-                    case "light":
-                        {
-                            AppThemeController.Instance.SetTheme("light");
-                        }
-                        break;
-                    case "dark":
-                        {
-                            AppThemeController.Instance.SetTheme("dark");
-                        }
-                        break;
-                }
+                AppThemeController.Instance.SetTheme(theme as string);
             }));
 
         #endregion
