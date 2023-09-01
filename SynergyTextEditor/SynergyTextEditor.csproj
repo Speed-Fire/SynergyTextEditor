@@ -35,10 +35,10 @@
     </Page>
     <None Include="AssemblyInfo.cs" />
     <None Include="KeywordLangMapper.xaml">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="KeywordLanguages\CSlangHighlight.xaml">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 

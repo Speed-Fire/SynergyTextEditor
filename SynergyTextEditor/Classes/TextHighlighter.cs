@@ -25,7 +25,8 @@ namespace SynergyTextEditor.Classes
     public class TextHighlighter : 
         IRecipient<TextChangedMessage>,
         IRecipient<FileOpenedMessage>,
-        IRecipient<KeywordLanguageUploadedMessage>
+        IRecipient<KeywordLanguageUploadedMessage>,
+        IRecipient<SelectKeywordLanguageMessage>
     {
         private readonly RichTextBox rtb;
         private readonly IKeywordLanguageSelector languageSelector;
@@ -38,8 +39,6 @@ namespace SynergyTextEditor.Classes
             languageSelector = Program.AppHost.Services.GetService<IKeywordLanguageSelector>();
 
             WeakReferenceMessenger.Default.RegisterAll(this);
-
-            //language = KeywordLanguageLoader.Load("C:\\Users\\Влад\\Desktop\\CSlangHighlight.xaml");
         }
 
         public void TextChanged(object sender, TextChangedEventArgs e)
@@ -210,6 +209,19 @@ namespace SynergyTextEditor.Classes
             string filename = WeakReferenceMessenger.Default.Send<OpenedFileNameRequestMessage>();
 
             language = languageSelector.GetLanguage(Path.GetExtension(filename));
+
+            FullHighlight();
+
+            WeakReferenceMessenger.Default.Send(new BlockTextEditorChangeStateMessage(false));
+        }
+
+        void IRecipient<SelectKeywordLanguageMessage>.Receive(SelectKeywordLanguageMessage message)
+        {
+            WeakReferenceMessenger.Default.Send(new BlockTextEditorChangeStateMessage(true));
+
+            var langname = message.Value;
+
+            language = languageSelector.GetLanguageByName(langname);
 
             FullHighlight();
 

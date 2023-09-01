@@ -34,11 +34,6 @@ namespace SynergyTextEditor.ViewModels
 
             textEditor = new TextEditor(document);
 
-            //WeakReferenceMessenger.Default.Register<TextChangedMessage>(textEditor, (r, m) =>
-            //{
-            //    textEditor.OnTextChanged(m.Value);
-            //});
-
             WeakReferenceMessenger.Default.Register<OpenedFileNameRequestMessage>(this, (r, m) =>
             {
                 m.Reply(OpenedFile);
@@ -69,7 +64,6 @@ namespace SynergyTextEditor.ViewModels
 
             if (ofd.ShowDialog() == true)
             {
-                //WeakReferenceMessenger.Default.Unregister<TextChangedMessage>(textEditor);
                 WeakReferenceMessenger.Default.Send(new BlockTextEditorChangeStateMessage(true));
 
                 textEditor.Open(ofd.FileName);
@@ -77,10 +71,6 @@ namespace SynergyTextEditor.ViewModels
                 WeakReferenceMessenger.Default.Send(new FileOpenedMessage(ofd.FileName));
 
                 WeakReferenceMessenger.Default.Send(new BlockTextEditorChangeStateMessage(false));
-                //WeakReferenceMessenger.Default.Register<TextChangedMessage>(textEditor, (r, m) =>
-                //{
-                //    textEditor.OnTextChanged(m.Value);
-                //});
 
                 OpenedFile = ofd.FileName;
             }
@@ -157,7 +147,7 @@ namespace SynergyTextEditor.ViewModels
         public RelayCommand<string> SelectSyntax => selectSyntax ??
             (selectSyntax = new RelayCommand<string>(langName =>
             {
-
+                WeakReferenceMessenger.Default.Send(new SelectKeywordLanguageMessage(langName));
             }));
 
         #endregion
