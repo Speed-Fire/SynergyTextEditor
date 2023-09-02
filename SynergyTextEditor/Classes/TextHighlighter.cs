@@ -5,6 +5,7 @@ using SynergyTextEditor.Messages;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -23,22 +24,49 @@ using System.Windows.Threading;
 namespace SynergyTextEditor.Classes
 {
     public class TextHighlighter : 
+        INotifyPropertyChanged,
         IRecipient<TextChangedMessage>,
         IRecipient<FileOpenedMessage>,
         IRecipient<KeywordLanguageUploadedMessage>,
         IRecipient<SelectKeywordLanguageMessage>
     {
+        public event PropertyChangedEventHandler PropertyChanged;
+
         private readonly RichTextBox rtb;
         private readonly IKeywordLanguageSelector languageSelector;
 
         private KeywordLanguage language;
+        private KeywordLanguage Language
+        {
+            get => language;
+
+            set
+            {
+                language = value;
+                OnPropertyChanged(nameof(Language));
+            }
+        }
 
         public TextHighlighter(RichTextBox rtb)
         {
             this.rtb = rtb;    
             languageSelector = Program.AppHost.Services.GetService<IKeywordLanguageSelector>();
 
+            PropertyChanged += TextHighlighter_PropertyChanged;
+
             WeakReferenceMessenger.Default.RegisterAll(this);
+
+            WeakReferenceMessenger.Default.Register<CurrentLanguageNameRequestMessage>(this, (r, m) =>
+            {
+                if(language == null)
+                {
+                    m.Reply("");
+                }
+                else
+                {
+                    m.Reply(language.Name);
+                }
+            });
         }
 
         public void TextChanged(object sender, TextChangedEventArgs e)
@@ -67,13 +95,8 @@ namespace SynergyTextEditor.Classes
             Highlight(rtb.Document.ContentStart, rtb.Document.ContentEnd);
         }
 
-        private object locker = new();
-
         private void Highlight(TextPointer start, TextPointer end)
         {
-            if (language is null)
-                return;
-
             // Unsubscribe from TextChanged
             WeakReferenceMessenger.Default.Unregister<TextChangedMessage>(this);
             
@@ -81,24 +104,27 @@ namespace SynergyTextEditor.Classes
             var range = new TextRange(start, end);
             range.ClearAllProperties();
 
-            List<Keyword> tags = new();
-
-            // Find all keywords in the range
-            for (var navigator = start;
-                navigator.CompareTo(end) < 0;
-                navigator = navigator.GetNextContextPosition(LogicalDirection.Forward))
+            if (language != null)
             {
-                var context = navigator.GetPointerContext(LogicalDirection.Backward);
+                List<Keyword> tags = new();
 
-                if (context == TextPointerContext.ElementStart && navigator.Parent is Run run)
+                // Find all keywords in the range
+                for (var navigator = start;
+                    navigator.CompareTo(end) < 0;
+                    navigator = navigator.GetNextContextPosition(LogicalDirection.Forward))
                 {
+                    var context = navigator.GetPointerContext(LogicalDirection.Backward);
+
+                    if (context == TextPointerContext.ElementStart && navigator.Parent is Run run)
+                    {
                         if (run.Text != "")
                             tags.AddRange(GetTagsFromRun(run));
+                    }
                 }
-            }
 
-            // when all keywords are found, styling them
-            language.ApplyStyling();
+                // when all keywords are found, styling them
+                language.ApplyStyling();
+            }
 
             // Subscribe to TextChanged
             WeakReferenceMessenger.Default.Register<TextChangedMessage>(this);
@@ -197,7 +223,7 @@ namespace SynergyTextEditor.Classes
 
         void IRecipient<FileOpenedMessage>.Receive(FileOpenedMessage message)
         {
-            language = languageSelector.GetLanguage(Path.GetExtension(message.Value));
+            Language = languageSelector.GetLanguage(Path.GetExtension(message.Value));
 
             FullHighlight();
         }
@@ -208,7 +234,7 @@ namespace SynergyTextEditor.Classes
 
             string filename = WeakReferenceMessenger.Default.Send<OpenedFileNameRequestMessage>();
 
-            language = languageSelector.GetLanguage(Path.GetExtension(filename));
+            Language = languageSelector.GetLanguage(Path.GetExtension(filename));
 
             FullHighlight();
 
@@ -221,11 +247,32 @@ namespace SynergyTextEditor.Classes
 
             var langname = message.Value;
 
-            language = languageSelector.GetLanguageByName(langname);
+            Language = languageSelector.GetLanguageByName(langname);
 
             FullHighlight();
 
             WeakReferenceMessenger.Default.Send(new BlockTextEditorChangeStateMessage(false));
+        }
+
+        #endregion
+
+        #region Property changed
+
+        private void TextHighlighter_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            switch (e.PropertyName)
+            {
+                case nameof(Language):
+                    {
+                        WeakReferenceMessenger.Default.Send(new KeywordLanguageChangedMessage(""));
+                    }
+                    break;
+            }
+        }
+
+        private void OnPropertyChanged(string v)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(v));
         }
 
         #endregion

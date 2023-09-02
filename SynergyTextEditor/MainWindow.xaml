@@ -37,13 +37,6 @@
                           Command="Redo"/>
 
                 <Separator/>
-                <MenuItem Header="Syntaxes...">
-                    <MenuItem Header="None"
-                              IsCheckable="True"
-                              IsChecked="True"/>
-                </MenuItem>
-                <MenuItem Header="Upload syntax"
-                          Command="{Binding UploadSyntax}"/>
             </MenuItem>
 
             <MenuItem Header="Settings">
@@ -78,6 +71,14 @@
                         
                     </MenuItem>
                 </MenuItem>
+            </MenuItem>
+
+            <MenuItem Header="Syntaxes">
+                <MenuItem
+                    x:Name="SyntaxList"
+                    Header="Current..."/>
+                <MenuItem Header="Upload syntax"
+                          Command="{Binding UploadSyntax}"/>
             </MenuItem>
         </Menu>
 

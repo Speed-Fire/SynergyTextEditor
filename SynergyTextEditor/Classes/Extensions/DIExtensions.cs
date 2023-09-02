@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using SynergyTextEditor.Classes.Converters;
+using SynergyTextEditor.Classes.MenuItemRadioControllers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,7 +25,8 @@ namespace SynergyTextEditor.Classes.Extensions
         {
             services
                 .AddSingleton<IKeywordLanguageLoader, KeywordLanguageLoader>()
-                .AddSingleton<IKeywordLanguageSelector, KeywordLanguageSelector>();
+                .AddSingleton<IKeywordLanguageSelector, KeywordLanguageSelector>()
+                .AddSingleton<SyntaxMenuItemRadioController>();
             
             return services;
         }

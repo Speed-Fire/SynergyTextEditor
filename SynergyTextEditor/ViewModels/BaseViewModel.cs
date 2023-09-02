@@ -9,9 +9,12 @@ using System.Windows.Input;
 
 namespace SynergyTextEditor.ViewModels
 {
-    public class BaseViewModel
+    public abstract class BaseViewModel
     {
         protected CommandBindingCollection commandBindings = new();
         public CommandBindingCollection CommandBindings => commandBindings;
+
+        protected abstract void RegisterMessages();
+        protected virtual void RegisterCommandBindings() { }
     }
 }

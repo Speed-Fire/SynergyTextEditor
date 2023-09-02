@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.Messaging;
 using SynergyTextEditor.Classes;
+using SynergyTextEditor.Classes.MenuItemRadioControllers;
 using SynergyTextEditor.Messages;
 using SynergyTextEditor.ViewModels;
 using System;
@@ -23,15 +24,21 @@ namespace SynergyTextEditor
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class MainWindow : 
+        Window,
+        IRecipient<KeywordLanguageUploadedMessage>,
+        IRecipient<KeywordLanguageChangedMessage>
     {
-        private MainVM viewModel;
+        private readonly SyntaxMenuItemRadioController _syntaxMenuItemRadioController;
 
-        private TextHighlighter textHighlighter;
+        private readonly MainVM _viewModel;
+        private readonly TextHighlighter _textHighlighter;
 
-        public MainWindow()
+        public MainWindow(SyntaxMenuItemRadioController syntaxMenuItemRadioController)
         {
             InitializeComponent();
+
+            WeakReferenceMessenger.Default.RegisterAll(this);
 
             switch (AppThemeController.Instance.CurrentThemeName)
             {
@@ -48,12 +55,13 @@ namespace SynergyTextEditor
 
             Editor.TextChanged += Editor_TextChanged;
 
-            DataContext = viewModel = vm;
-            CommandBindings.AddRange(viewModel.CommandBindings);
+            DataContext = _viewModel = vm;
+            CommandBindings.AddRange(_viewModel.CommandBindings);
 
-            textHighlighter = new TextHighlighter(Editor);
+            _textHighlighter = new TextHighlighter(Editor);
 
-            //CreateHighlightLanguage();
+            _syntaxMenuItemRadioController = syntaxMenuItemRadioController;
+            _syntaxMenuItemRadioController.Fill(SyntaxList);
         }
 
         private void Editor_TextChanged(object sender, TextChangedEventArgs e)
@@ -201,5 +209,19 @@ namespace SynergyTextEditor
         {
             DarkThemeSetting.IsChecked = true;
         }
+
+        #region Message handlers
+
+        void IRecipient<KeywordLanguageUploadedMessage>.Receive(KeywordLanguageUploadedMessage message)
+        {
+            _syntaxMenuItemRadioController.Fill(SyntaxList);
+        }
+
+        void IRecipient<KeywordLanguageChangedMessage>.Receive(KeywordLanguageChangedMessage message)
+        {
+            _syntaxMenuItemRadioController.Select();
+        }
+
+        #endregion
     }
 }

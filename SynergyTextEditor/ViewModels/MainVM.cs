@@ -34,21 +34,39 @@ namespace SynergyTextEditor.ViewModels
 
             textEditor = new TextEditor(document);
 
-            WeakReferenceMessenger.Default.Register<OpenedFileNameRequestMessage>(this, (r, m) =>
-            {
-                m.Reply(OpenedFile);
-            });
-
-            CommandBindings.Add(new CommandBinding(ApplicationCommands.Open, OpenFile));
-            CommandBindings.Add(new CommandBinding(ApplicationCommands.New, CreateFile));
-            CommandBindings.Add(new CommandBinding(ApplicationCommands.Save, SaveFile));
-            CommandBindings.Add(new CommandBinding(ApplicationCommands.SaveAs, SaveAsFile));
+            RegisterMessages();
+            RegisterCommandBindings();
 
             App.Current.Exit += (sender, e) =>
             {
                 RequestSaving(sender, null);
             };
         }
+
+        #region BaseViewModel
+
+        protected override void RegisterMessages()
+        {
+            WeakReferenceMessenger.Default.Register<OpenedFileNameRequestMessage>(this, (r, m) =>
+            {
+                m.Reply(OpenedFile);
+            });
+
+            WeakReferenceMessenger.Default.Register<SelectSyntaxCommandRequestMessage>(this, (r, m) =>
+            {
+                m.Reply(SelectSyntax);
+            });
+        }
+
+        protected override void RegisterCommandBindings()
+        {
+            CommandBindings.Add(new CommandBinding(ApplicationCommands.Open, OpenFile));
+            CommandBindings.Add(new CommandBinding(ApplicationCommands.New, CreateFile));
+            CommandBindings.Add(new CommandBinding(ApplicationCommands.Save, SaveFile));
+            CommandBindings.Add(new CommandBinding(ApplicationCommands.SaveAs, SaveAsFile));
+        }
+
+        #endregion
 
         #region Application commands handlers
 
