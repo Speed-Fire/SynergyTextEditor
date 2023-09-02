@@ -29,7 +29,6 @@ namespace SynergyTextEditor.Classes.MenuItemRadioControllers
                 WeakReferenceMessenger.Default.Send(new SetThemeCommandRequestMessage());
 
             var names = _themeController.Themes.ToList();
-            //var comParams = _themeController.Themes.Select(s => s.ToLower()).ToList();
 
             _items = MenuItemRadioFiller.Fill(root, command, names/*, comParams*/);
 
