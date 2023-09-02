@@ -75,16 +75,23 @@ namespace SynergyTextEditor.Classes
                 return;
 
             if (e.Changes.Count == 0) return;
-
-            // Get current paragraph (row)
-            /// this optimization won't work with multirow text styling (such as commentaries in VS)
-            var paragraph = rtb.Document.ContentStart.GetPositionAtOffset(e.Changes.First().Offset).Paragraph;
-            if (paragraph is null)
+            
+            foreach (var change in e.Changes)
             {
-                return;
-            }
+                // Get changed interval
+                /// this optimization won't work with multirow text styling (such as commentaries in VS)
+                /// 
 
-            Highlight(paragraph.ContentStart, paragraph.ContentEnd);
+                var paragraphStart = GetParagraphByOffset(change.Offset, LogicalDirection.Forward);
+                if (paragraphStart is null)
+                    continue;
+
+                var paragraphEnd = GetParagraphByOffset(change.Offset + change.AddedLength, LogicalDirection.Backward);
+                if (paragraphEnd is null)
+                    continue;
+
+                Highlight(paragraphStart.ContentStart, paragraphEnd.ContentEnd);
+            }
         }
 
         public void FullHighlight()
@@ -212,6 +219,36 @@ namespace SynergyTextEditor.Classes
             language.TryPut(lkeyword);
 
             return res;
+        }
+
+        private Paragraph GetParagraphByOffset(int offset, LogicalDirection direction)
+        {
+            var tpOffset = rtb.Document.ContentStart.GetPositionAtOffset(offset);
+
+            if(tpOffset is null)
+                return null;
+
+            var tpOffsetForwardContext = tpOffset.GetPointerContext(LogicalDirection.Forward);
+            var tpOffsetBackwardContext = tpOffset.GetPointerContext(LogicalDirection.Backward);
+
+            var directionalContext =
+                direction == LogicalDirection.Forward ? tpOffsetForwardContext : tpOffsetBackwardContext;
+
+            // Check if tpOffset is not at the start or the begin of the text
+            //  and not in between 2 same element brackets:
+            if (directionalContext == TextPointerContext.None ||
+                (tpOffsetForwardContext == TextPointerContext.ElementEnd && tpOffsetBackwardContext == TextPointerContext.ElementEnd) ||
+                (tpOffsetForwardContext == TextPointerContext.ElementStart && tpOffsetBackwardContext == TextPointerContext.ElementStart))
+                return null;
+
+            // Get next insertion position, if tpOffset is not one:
+            if (!tpOffset.IsAtInsertionPosition)
+                tpOffset = tpOffset.GetNextInsertionPosition(direction);
+
+            if (tpOffset is null)
+                return null;
+
+            return tpOffset.Paragraph;
         }
 
         #region Message handlers
