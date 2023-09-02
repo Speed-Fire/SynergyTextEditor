@@ -5,11 +5,23 @@
         <ResourceDictionary Source="pack://application:,,,/Themes/MenuStyle.xaml"/>
     </ResourceDictionary.MergedDictionaries>
 
-    <Style TargetType="RichTextBox">
+    <SolidColorBrush x:Key="RichTextBox.LineNumbers.Foreground" Color="#5A5A5A"/>
+    
+    <Style x:Key="EditorStyle" TargetType="RichTextBox">
         <Setter Property="Background" Value="{DynamicResource RichTextBox.Background}"/>
         <Setter Property="Foreground" Value="{DynamicResource RichTextBox.Foreground}"/>
+        <Setter Property="Block.LineHeight" Value="2"/>
+        <Setter Property="AcceptsTab" Value="True"/>
     </Style>
 
-    
+    <Style x:Key="LineNumeratorStyle" TargetType="RichTextBox">
+        <Setter Property="Background" Value="{DynamicResource RichTextBox.Background}"/>
+        <Setter Property="Foreground" Value="{DynamicResource RichTextBox.LineNumbers.Foreground}"/>
+        <Setter Property="FontWeight" Value="ExtraBold"/>
+        <Setter Property="IsReadOnly" Value="True"/>
+        <Setter Property="IsReadOnlyCaretVisible" Value="False"/>
+        <Setter Property="TextBlock.TextAlignment" Value="Right"/>
+        <Setter Property="Block.LineHeight" Value="2"/>
+    </Style>
 
 </ResourceDictionary>

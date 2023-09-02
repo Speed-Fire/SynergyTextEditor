@@ -17,6 +17,7 @@
 
   <ItemGroup>
     <None Remove="cwvmdznb.0kw~" />
+    <None Remove="MainWindow.xaml~RF28f0fe08.TMP" />
   </ItemGroup>
 
   <ItemGroup>

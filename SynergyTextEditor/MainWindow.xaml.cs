@@ -31,6 +31,7 @@ namespace SynergyTextEditor
     {
         private readonly SyntaxMenuItemRadioController _syntaxMenuItemRadioController;
         private readonly ThemeMenuItemRadioController _themeMenuItemRadioController;
+        private readonly LineNumerator _lineNumerator;
 
         private readonly MainVM _viewModel;
         private readonly TextHighlighter _textHighlighter;
@@ -41,17 +42,6 @@ namespace SynergyTextEditor
             InitializeComponent();
 
             WeakReferenceMessenger.Default.RegisterAll(this);
-
-            //switch (AppThemeController.Instance.CurrentThemeName)
-            //{
-            //    case "light":
-            //        LightThemeSetting.IsChecked = true;
-            //        break;
-            //    case "dark":
-            //    default:
-            //        DarkThemeSetting.IsChecked = true;
-            //        break;
-            //}
 
             var vm = new MainVM(Editor.Document);
 
@@ -67,6 +57,8 @@ namespace SynergyTextEditor
 
             _themeMenuItemRadioController = themeMenuItemRadioController;
             _themeMenuItemRadioController.Fill(ThemeList);
+
+            _lineNumerator = new LineNumerator(LineNumbers, Editor);
         }
 
         private void Editor_TextChanged(object sender, TextChangedEventArgs e)
@@ -205,16 +197,6 @@ namespace SynergyTextEditor
             loader.Save(lang, "C:\\Users\\Влад\\Desktop\\CSlangHighlight.xaml");
         }
 
-        //private void MenuSettingsThemeLight_Click(object sender, RoutedEventArgs e)
-        //{
-        //    LightThemeSetting.IsChecked = true;
-        //}
-
-        //private void MenuSettingsThemeDark_Click(object sender, RoutedEventArgs e)
-        //{
-        //    DarkThemeSetting.IsChecked = true;
-        //}
-
         #region Message handlers
 
         void IRecipient<KeywordLanguageUploadedMessage>.Receive(KeywordLanguageUploadedMessage message)
@@ -225,6 +207,53 @@ namespace SynergyTextEditor
         void IRecipient<KeywordLanguageChangedMessage>.Receive(KeywordLanguageChangedMessage message)
         {
             _syntaxMenuItemRadioController.Select();
+        }
+
+        #endregion
+
+        #region Text scaling
+
+        private const double ScaleStep = 0.1;
+
+        private void Window_MouseWheel(object sender, MouseWheelEventArgs e)
+        {
+            if ((Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control)
+            {
+                if (e.Delta > 0 && Scale.Value < Scale.Maximum)
+                {
+                    Scale.Value += ScaleStep;
+                }
+                else if (e.Delta < 0 && Scale.Value > Scale.Minimum)
+                {
+                    Scale.Value -= ScaleStep;
+                }
+            }
+        }
+
+        #endregion
+
+        #region Scrolling
+
+        private bool _isScrolling = false;
+
+        private void Editor_ScrollChanged(object sender, ScrollChangedEventArgs e)
+        {
+            if (_isScrolling) return;
+            _isScrolling = true;
+
+            LineNumbers.ScrollToVerticalOffset(e.VerticalOffset);
+
+            _isScrolling = false;
+        }
+
+        private void LineNumbers_ScrollChanged(object sender, ScrollChangedEventArgs e)
+        {
+            if (_isScrolling) return;
+            _isScrolling = true;
+
+            Editor.ScrollToVerticalOffset(e.VerticalOffset);
+
+            _isScrolling = false;
         }
 
         #endregion
