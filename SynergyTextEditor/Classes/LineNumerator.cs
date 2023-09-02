@@ -1,4 +1,6 @@
-﻿using SynergyTextEditor.Classes.Extensions;
+﻿using CommunityToolkit.Mvvm.Messaging;
+using SynergyTextEditor.Classes.Extensions;
+using SynergyTextEditor.Messages;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,12 +8,13 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Controls;
 using System.Windows.Documents;
+using System.Windows.Media;
 
 #nullable disable
 
 namespace SynergyTextEditor.Classes
 {
-    public class LineNumerator
+    public class LineNumerator : IRecipient<FileOpenedMessage>, IDisposable
     {
         private readonly RichTextBox _lineNumbers;
         private readonly RichTextBox _inputText;
@@ -30,6 +33,8 @@ namespace SynergyTextEditor.Classes
 
         private int _lineCount;
 
+        private Block _highlightedLineNumber;
+
         public LineNumerator(RichTextBox lineNumbers, RichTextBox inputText)
         {
             _lineNumbers = lineNumbers;
@@ -37,19 +42,22 @@ namespace SynergyTextEditor.Classes
 
             StartupInitialization();
 
+            WeakReferenceMessenger.Default.RegisterAll(this);
+
+            _inputText.SelectionChanged += _inputText_SelectionChanged;
             _inputText.TextChanged += _inputText_TextChanged;
         }
 
         private void StartupInitialization()
         {
-            if(_lineNumbers.Document == null)
+            if (_lineNumbers.Document == null)
                 _lineNumbers.Document = new FlowDocument();
 
             _lineCount = 0;
 
             _lineNumbers.Document.Blocks.Clear();
 
-            if( _inputText.Document == null)
+            if (_inputText.Document == null)
             {
                 _inputText.Document = new FlowDocument();
                 _inputText.Document.Blocks.Clear();
@@ -58,18 +66,60 @@ namespace SynergyTextEditor.Classes
 
             _lineCount = _inputText.Document.Blocks.Count;
 
-            for(int i = 0; i < _lineCount; i++)
+            for (int i = 0; i < _lineCount; i++)
             {
                 _lineNumbers.Document.Blocks.Add(new Paragraph(new Run((i + 1).ToString())));
             }
+
+            _highlightedLineNumber = _lineNumbers.Document.Blocks.FirstBlock;
         }
 
-        private void _inputText_TextChanged(object sender, TextChangedEventArgs e)
+        #region Highlighting block with caret
+
+        private void HighlightCaretBlockNumber()
+        {
+            var blockId = GetCaretBlockId();
+
+            var range = new TextRange(_highlightedLineNumber.ContentStart, _highlightedLineNumber.ContentEnd);
+            range.ClearAllProperties();
+
+            _highlightedLineNumber = _lineNumbers.Document.Blocks.ElementAt(blockId);
+
+            var brush = App.Current.FindResource("RichTextBox.Foreground") as SolidColorBrush;
+
+            range = new TextRange(_highlightedLineNumber.ContentStart, _highlightedLineNumber.ContentEnd);
+            range.ApplyPropertyValue(TextElement.ForegroundProperty, brush);
+        }
+
+        int GetCaretBlockId()
+        {
+            var currentBlock = (Block)_inputText.CaretPosition.Paragraph;
+
+            if (currentBlock is null)
+                currentBlock = _inputText.Document.Blocks.LastBlock;
+
+            var blockId = 0;
+            var blockItr = _inputText.Document.Blocks.FirstBlock;
+            for (; blockId < _inputText.Document.Blocks.Count && blockItr != null;
+                blockId++, blockItr = blockItr.NextBlock)
+            {
+                if (currentBlock.Equals(blockItr))
+                    break;
+            }
+
+            return blockId;
+        }
+
+        #endregion
+
+        #region Line numerating
+
+        private void UpdateLineNumbers()
         {
             if (_lineCount == _inputText.Document.Blocks.Count)
                 return;
 
-            if(_lineCount < _inputText.Document.Blocks.Count)
+            if (_lineCount < _inputText.Document.Blocks.Count)
             {
                 AddLineNumbers();
             }
@@ -123,6 +173,37 @@ namespace SynergyTextEditor.Classes
             count = Math.Min(Math.Max(count, 2), 5);
 
             _lineNumbers.MaxWidth = _widthDictionary[count];
+        }
+
+        #endregion
+
+        #region Event handlers
+
+        private void _inputText_SelectionChanged(object sender, System.Windows.RoutedEventArgs e)
+        {
+            HighlightCaretBlockNumber();
+        }
+
+        private void _inputText_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            UpdateLineNumbers();
+        }
+
+        #endregion
+
+        #region Message handlers
+
+        void IRecipient<FileOpenedMessage>.Receive(FileOpenedMessage message)
+        {
+            HighlightCaretBlockNumber();
+        }
+
+        #endregion
+
+        public void Dispose()
+        {
+            _inputText.SelectionChanged -= _inputText_SelectionChanged;
+            _inputText.TextChanged -= _inputText_TextChanged;
         }
     }
 }

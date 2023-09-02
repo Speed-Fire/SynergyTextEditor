@@ -5,6 +5,7 @@ using SynergyTextEditor.Messages;
 using SynergyTextEditor.ViewModels;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -50,6 +51,8 @@ namespace SynergyTextEditor
             DataContext = _viewModel = vm;
             CommandBindings.AddRange(_viewModel.CommandBindings);
 
+            #region Initialize visual components
+
             _textHighlighter = new TextHighlighter(Editor);
 
             _syntaxMenuItemRadioController = syntaxMenuItemRadioController;
@@ -59,6 +62,8 @@ namespace SynergyTextEditor
             _themeMenuItemRadioController.Fill(ThemeList);
 
             _lineNumerator = new LineNumerator(LineNumbers, Editor);
+
+            #endregion
         }
 
         private void Editor_TextChanged(object sender, TextChangedEventArgs e)
@@ -195,6 +200,13 @@ namespace SynergyTextEditor
             var loader = new KeywordLanguageLoader();
 
             loader.Save(lang, "C:\\Users\\Влад\\Desktop\\CSlangHighlight.xaml");
+        }
+
+        protected override void OnClosing(CancelEventArgs e)
+        {
+            base.OnClosing(e);
+
+            _lineNumerator.Dispose();
         }
 
         #region Message handlers
