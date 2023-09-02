@@ -30,26 +30,28 @@ namespace SynergyTextEditor
         IRecipient<KeywordLanguageChangedMessage>
     {
         private readonly SyntaxMenuItemRadioController _syntaxMenuItemRadioController;
+        private readonly ThemeMenuItemRadioController _themeMenuItemRadioController;
 
         private readonly MainVM _viewModel;
         private readonly TextHighlighter _textHighlighter;
 
-        public MainWindow(SyntaxMenuItemRadioController syntaxMenuItemRadioController)
+        public MainWindow(SyntaxMenuItemRadioController syntaxMenuItemRadioController,
+            ThemeMenuItemRadioController themeMenuItemRadioController)
         {
             InitializeComponent();
 
             WeakReferenceMessenger.Default.RegisterAll(this);
 
-            switch (AppThemeController.Instance.CurrentThemeName)
-            {
-                case "light":
-                    LightThemeSetting.IsChecked = true;
-                    break;
-                case "dark":
-                default:
-                    DarkThemeSetting.IsChecked = true;
-                    break;
-            }
+            //switch (AppThemeController.Instance.CurrentThemeName)
+            //{
+            //    case "light":
+            //        LightThemeSetting.IsChecked = true;
+            //        break;
+            //    case "dark":
+            //    default:
+            //        DarkThemeSetting.IsChecked = true;
+            //        break;
+            //}
 
             var vm = new MainVM(Editor.Document);
 
@@ -62,6 +64,9 @@ namespace SynergyTextEditor
 
             _syntaxMenuItemRadioController = syntaxMenuItemRadioController;
             _syntaxMenuItemRadioController.Fill(SyntaxList);
+
+            _themeMenuItemRadioController = themeMenuItemRadioController;
+            _themeMenuItemRadioController.Fill(ThemeList);
         }
 
         private void Editor_TextChanged(object sender, TextChangedEventArgs e)
@@ -200,15 +205,15 @@ namespace SynergyTextEditor
             loader.Save(lang, "C:\\Users\\Влад\\Desktop\\CSlangHighlight.xaml");
         }
 
-        private void MenuSettingsThemeLight_Click(object sender, RoutedEventArgs e)
-        {
-            LightThemeSetting.IsChecked = true;
-        }
+        //private void MenuSettingsThemeLight_Click(object sender, RoutedEventArgs e)
+        //{
+        //    LightThemeSetting.IsChecked = true;
+        //}
 
-        private void MenuSettingsThemeDark_Click(object sender, RoutedEventArgs e)
-        {
-            DarkThemeSetting.IsChecked = true;
-        }
+        //private void MenuSettingsThemeDark_Click(object sender, RoutedEventArgs e)
+        //{
+        //    DarkThemeSetting.IsChecked = true;
+        //}
 
         #region Message handlers
 

@@ -23,6 +23,7 @@ namespace SynergyTextEditor.ViewModels
     {
         private readonly TextEditor textEditor;
         private readonly IKeywordLanguageSelector languageSelector;
+        private readonly AppThemeController appThemeController;
 
         private string OpenedFile { get; set; } = "";
 
@@ -31,6 +32,7 @@ namespace SynergyTextEditor.ViewModels
         public MainVM(FlowDocument document)
         {
             languageSelector = Program.AppHost.Services.GetRequiredService<IKeywordLanguageSelector>();
+            appThemeController = Program.AppHost.Services.GetRequiredService<AppThemeController>();
 
             textEditor = new TextEditor(document);
 
@@ -55,6 +57,11 @@ namespace SynergyTextEditor.ViewModels
             WeakReferenceMessenger.Default.Register<SelectSyntaxCommandRequestMessage>(this, (r, m) =>
             {
                 m.Reply(SelectSyntax);
+            });
+
+            WeakReferenceMessenger.Default.Register<SetThemeCommandRequestMessage>(this, (r, m) =>
+            {
+                m.Reply(SetTheme);
             });
         }
 
@@ -127,7 +134,7 @@ namespace SynergyTextEditor.ViewModels
         public RelayCommand<string> SetTheme => setTheme ??
             (setTheme = new RelayCommand<string>(theme =>
             {
-                AppThemeController.Instance.SetTheme(theme as string);
+                appThemeController.SetTheme(theme);
             }));
 
         private RelayCommand uploadSyntax;

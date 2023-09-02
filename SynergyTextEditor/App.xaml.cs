@@ -24,9 +24,10 @@ namespace SynergyTextEditor
         {
             base.OnStartup(e);
 
-            AppThemeController.Instance.SetTheme("dark");
+            //AppThemeController.Instance.SetTheme("dark");
 
-            var dicts = App.Current.Resources.MergedDictionaries;
+            var themeController = Program.AppHost.Services.GetRequiredService<AppThemeController>();
+            themeController.SetTheme("dark");
 
             MainWindow = Program.AppHost.Services.GetRequiredService<MainWindow>();
             MainWindow.Show();

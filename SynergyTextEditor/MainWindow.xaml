@@ -40,37 +40,9 @@
             </MenuItem>
 
             <MenuItem Header="Settings">
-                <MenuItem Header="Themes">
-                    <MenuItem x:Name="MenuSettingsThemeLight"
-                              Header="Light"
-                              Command="{Binding SetTheme}"
-                              CommandParameter="light"
-                              Click="MenuSettingsThemeLight_Click">
-                        <MenuItem.Icon>
-                            <RadioButton
-                                x:Name="LightThemeSetting"
-                                GroupName="ThemeGroup"
-                                Command="{Binding SetTheme}"
-                                CommandParameter="light"/>
-                        </MenuItem.Icon>
-                    </MenuItem>
-
-                    <MenuItem x:Name="MenuSettingsThemeDark"
-                              Header="Dark"
-                              Command="{Binding SetTheme}"
-                              CommandParameter="dark"
-                              Click="MenuSettingsThemeDark_Click">
-                        <MenuItem.Icon>
-                            <RadioButton
-                                x:Name="DarkThemeSetting"
-                                GroupName="ThemeGroup"
-                                Command="{Binding SetTheme}"
-                                CommandParameter="dark"/>
-                        </MenuItem.Icon>
-
-                        
-                    </MenuItem>
-                </MenuItem>
+                <MenuItem 
+                    x:Name="ThemeList"
+                    Header="Themes"/>
             </MenuItem>
 
             <MenuItem Header="Syntaxes">

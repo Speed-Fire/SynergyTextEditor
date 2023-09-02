@@ -25,9 +25,25 @@ namespace SynergyTextEditor.Classes.Extensions
         {
             services
                 .AddSingleton<IKeywordLanguageLoader, KeywordLanguageLoader>()
-                .AddSingleton<IKeywordLanguageSelector, KeywordLanguageSelector>()
-                .AddSingleton<SyntaxMenuItemRadioController>();
+                .AddSingleton<IKeywordLanguageSelector, KeywordLanguageSelector>();
             
+            return services;
+        }
+
+        public static IServiceCollection RegisterMenuItemRadioControllers(this IServiceCollection services)
+        {
+            services
+                .AddSingleton<SyntaxMenuItemRadioController>()
+                .AddSingleton<ThemeMenuItemRadioController>();
+
+            return services;
+        }
+
+        public static IServiceCollection RegisterThemeServices(this IServiceCollection services)
+        {
+            services
+                .AddSingleton<AppThemeController>();
+
             return services;
         }
 

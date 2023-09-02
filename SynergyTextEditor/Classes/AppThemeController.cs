@@ -10,22 +10,14 @@ using System.Windows;
 
 namespace SynergyTextEditor.Classes
 {
-    public class AppThemeController : INotifyPropertyChanged
+    public class AppThemeController
     {
-        public event PropertyChangedEventHandler PropertyChanged;
+        private List<string> _themes = new() { "Light", "Dark" };
+        public IEnumerable<string> Themes => _themes;
 
-        private AppThemeController() { }
-
-        private static AppThemeController instance;
-        public static AppThemeController Instance
+        public AppThemeController()
         {
-            get
-            {
-                if(instance == null)
-                    instance = new AppThemeController();
-
-                return instance;
-            }
+            
         }
 
         private ResourceDictionary CurrentTheme { get; set; }
@@ -37,10 +29,9 @@ namespace SynergyTextEditor.Classes
             {
                 return currentThemeName;
             }
-            set
+            private set
             {
                 currentThemeName = value;
-                OnPropertyChanged(nameof(CurrentThemeName));
             }
         }
 
@@ -55,28 +46,23 @@ namespace SynergyTextEditor.Classes
 
             switch (themeName)
             {
-                case "light":
+                case "Light":
                     {
                         CurrentTheme.Source = new Uri("pack://application:,,,/Themes/LightTheme.xaml");
-                        CurrentThemeName = "light";
+                        CurrentThemeName = "Light";
                     }
                     break;
 
-                case "dark":
+                case "Dark":
                 default:
                     {
                         CurrentTheme.Source = new Uri("pack://application:,,,/Themes/DarkTheme.xaml");
-                        CurrentThemeName = "dark";
+                        CurrentThemeName = "Dark";
                     }
                     break;
             }
 
             App.Current.Resources.MergedDictionaries.Add(CurrentTheme);
-        }
-
-        private void OnPropertyChanged(string propertyName)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }
