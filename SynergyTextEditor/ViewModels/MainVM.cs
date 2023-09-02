@@ -105,7 +105,7 @@ namespace SynergyTextEditor.ViewModels
         {
             RequestSaving(sender, e);
 
-            textEditor.Create();
+            textEditor.Create(true);
         }
 
         private void SaveFile(object sender, ExecutedRoutedEventArgs e)
