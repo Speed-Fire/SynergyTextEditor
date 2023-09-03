@@ -14,7 +14,10 @@ using System.Windows.Media;
 
 namespace SynergyTextEditor.Classes
 {
-    public class LineNumerator : IRecipient<FileOpenedMessage>, IDisposable
+    public class LineNumerator : 
+        IRecipient<FileOpenedMessage>,
+        IRecipient<ThemeChangedMessage>,
+        IDisposable
     {
         private readonly RichTextBox _lineNumbers;
         private readonly RichTextBox _inputText;
@@ -85,9 +88,14 @@ namespace SynergyTextEditor.Classes
 
             _highlightedLineNumber = _lineNumbers.Document.Blocks.ElementAt(blockId);
 
+            ApplyCaretLineNumberHighlighting();
+        }
+
+        private void ApplyCaretLineNumberHighlighting()
+        {
             var brush = App.Current.FindResource("RichTextBox.Foreground") as SolidColorBrush;
 
-            range = new TextRange(_highlightedLineNumber.ContentStart, _highlightedLineNumber.ContentEnd);
+            var range = new TextRange(_highlightedLineNumber.ContentStart, _highlightedLineNumber.ContentEnd);
             range.ApplyPropertyValue(TextElement.ForegroundProperty, brush);
         }
 
@@ -196,6 +204,11 @@ namespace SynergyTextEditor.Classes
         void IRecipient<FileOpenedMessage>.Receive(FileOpenedMessage message)
         {
             HighlightCaretBlockNumber();
+        }
+
+        public void Receive(ThemeChangedMessage message)
+        {
+            ApplyCaretLineNumberHighlighting();
         }
 
         #endregion

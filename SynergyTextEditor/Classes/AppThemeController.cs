@@ -1,4 +1,6 @@
-﻿using System;
+﻿using CommunityToolkit.Mvvm.Messaging;
+using SynergyTextEditor.Messages;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -63,6 +65,8 @@ namespace SynergyTextEditor.Classes
             }
 
             App.Current.Resources.MergedDictionaries.Add(CurrentTheme);
+
+            WeakReferenceMessenger.Default.Send(new ThemeChangedMessage(themeName));
         }
     }
 }
