@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace SynergyTextEditor.Messages
 {
-    internal class FileOpenedMessage : ValueChangedMessage<string>
+    public class FileOpenedMessage : ValueChangedMessage<string>
     {
         public FileOpenedMessage(string value) : base(value)
         {

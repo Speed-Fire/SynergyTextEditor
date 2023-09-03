@@ -8,7 +8,7 @@ using System.Windows.Controls;
 
 namespace SynergyTextEditor.Messages
 {
-    internal class TextChangedMessage : ValueChangedMessage<TextChangedEventArgs>
+    public class TextChangedMessage : ValueChangedMessage<TextChangedEventArgs>
     {
         public TextChangedMessage(TextChangedEventArgs value) : base(value)
         {

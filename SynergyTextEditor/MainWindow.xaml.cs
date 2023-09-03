@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.Messaging;
 using SynergyTextEditor.Classes;
 using SynergyTextEditor.Classes.MenuItemRadioControllers;
+using SynergyTextEditor.Classes.TextHighlighters;
 using SynergyTextEditor.Messages;
 using SynergyTextEditor.ViewModels;
 using System;
@@ -14,11 +15,6 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using static SynergyTextEditor.Classes.KeywordLanguageLoader.KeywordLanguageSerializable.KeywordGroupSerializable;
 
 namespace SynergyTextEditor
 {
@@ -35,7 +31,7 @@ namespace SynergyTextEditor
         private readonly LineNumerator _lineNumerator;
 
         private readonly MainVM _viewModel;
-        private readonly TextHighlighter _textHighlighter;
+        private readonly TextHighlighterBase _textHighlighter;
 
         public MainWindow(SyntaxMenuItemRadioController syntaxMenuItemRadioController,
             ThemeMenuItemRadioController themeMenuItemRadioController)
@@ -53,7 +49,7 @@ namespace SynergyTextEditor
 
             #region Initialize visual components
 
-            _textHighlighter = new TextHighlighter(Editor);
+            _textHighlighter = new ParallelTextHighlighter(Editor);
 
             _syntaxMenuItemRadioController = syntaxMenuItemRadioController;
             _syntaxMenuItemRadioController.Fill(SyntaxList);
@@ -207,6 +203,7 @@ namespace SynergyTextEditor
             base.OnClosing(e);
 
             _lineNumerator.Dispose();
+            _textHighlighter.Dispose();
         }
 
         #region Message handlers
@@ -218,7 +215,7 @@ namespace SynergyTextEditor
 
         void IRecipient<KeywordLanguageChangedMessage>.Receive(KeywordLanguageChangedMessage message)
         {
-            _syntaxMenuItemRadioController.Select();
+            App.Current.Dispatcher?.Invoke(_syntaxMenuItemRadioController.Select);
         }
 
         #endregion

@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using SynergyTextEditor.Classes.Converters;
 using SynergyTextEditor.Classes.MenuItemRadioControllers;
+using SynergyTextEditor.Classes.Workers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -47,11 +48,20 @@ namespace SynergyTextEditor.Classes.Extensions
             return services;
         }
 
+        public static IServiceCollection RegisterWorkers(this IServiceCollection services)
+        {
+            services.AddSingleton<TextHighlightingWorker>();
+
+            return services;
+        }
+
         public static IServiceCollection RegisterDPConverters(this IServiceCollection services)
         {
 
 
             return services;
         }
+
+
     }
 }

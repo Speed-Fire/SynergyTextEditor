@@ -2,6 +2,7 @@
 using SynergyTextEditor.Classes.Converters;
 using SynergyTextEditor.Classes.Utilities;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -69,7 +70,7 @@ namespace SynergyTextEditor.Classes
         private readonly List<Tuple<DependencyProperty, object>> styles;
         private readonly KeywordGroupType keywordGroupType;
 
-        private List<Keyword> tags = new();
+        private ConcurrentBag<Keyword> tags = new(); // List<Keyword> tags
 
         public KeywordGroupType Type { get { return keywordGroupType; } }
 
@@ -89,28 +90,47 @@ namespace SynergyTextEditor.Classes
         {
             if (!keywords.Search(tag.Word))
                 return false;
-
+            
             tags.Add(tag);
             return true;
         }
 
         public void ApplyStyling()
         {
-            foreach (var tag in tags)
+            //foreach (var tag in tags)
+            //{
+            //    try
+            //    {
+            //        var range = new TextRange(tag.StartPosition, tag.EndPosition);
+
+            //        foreach (var tuple in styles)
+            //        {
+            //            range.ApplyPropertyValue(tuple.Item1, tuple.Item2);
+            //        }
+            //    }
+            //    catch { }
+            //}
+
+            //tags.Clear();
+
+            while (!tags.IsEmpty)
             {
-                try
+                Keyword tag;
+
+                if (tags.TryTake(out tag))
                 {
-                    var range = new TextRange(tag.StartPosition, tag.EndPosition);
-
-                    foreach (var tuple in styles)
+                    try
                     {
-                        range.ApplyPropertyValue(tuple.Item1, tuple.Item2);
-                    }
-                }
-                catch { }
-            }
+                        var range = new TextRange(tag.StartPosition, tag.EndPosition);
 
-            tags.Clear();
+                        foreach (var tuple in styles)
+                        {
+                            range.ApplyPropertyValue(tuple.Item1, tuple.Item2);
+                        }
+                    }
+                    catch { }
+                }
+            }
         }
     }
 

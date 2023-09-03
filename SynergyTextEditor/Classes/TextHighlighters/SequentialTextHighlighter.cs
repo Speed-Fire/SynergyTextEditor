@@ -21,19 +21,13 @@ using System.Windows.Threading;
 
 #nullable disable
 
-namespace SynergyTextEditor.Classes
+namespace SynergyTextEditor.Classes.TextHighlighters
 {
-    public class TextHighlighter : 
-        INotifyPropertyChanged,
-        IRecipient<TextChangedMessage>,
-        IRecipient<FileOpenedMessage>,
-        IRecipient<KeywordLanguageUploadedMessage>,
-        IRecipient<SelectKeywordLanguageMessage>
+    public sealed class SequentialTextHighlighter :
+        TextHighlighterBase,
+        INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler PropertyChanged;
-
-        private readonly RichTextBox rtb;
-        private readonly IKeywordLanguageSelector languageSelector;
 
         private KeywordLanguage language;
         private KeywordLanguage Language
@@ -47,74 +41,24 @@ namespace SynergyTextEditor.Classes
             }
         }
 
-        public TextHighlighter(RichTextBox rtb)
-        {
-            this.rtb = rtb;    
-            languageSelector = Program.AppHost.Services.GetService<IKeywordLanguageSelector>();
+        protected override string CurrentLanguageName => Language is null ? null : Language.Name;
 
+        public SequentialTextHighlighter(RichTextBox rtb) : base(rtb)
+        {
             PropertyChanged += TextHighlighter_PropertyChanged;
-
-            WeakReferenceMessenger.Default.RegisterAll(this);
-
-            WeakReferenceMessenger.Default.Register<CurrentLanguageNameRequestMessage>(this, (r, m) =>
-            {
-                if(language == null)
-                {
-                    m.Reply("");
-                }
-                else
-                {
-                    m.Reply(language.Name);
-                }
-            });
         }
 
-        public void TextChanged(object sender, TextChangedEventArgs e)
-        {
-            if (rtb.Document is null)
-                return;
-
-            if (e.Changes.Count == 0) return;
-            
-            foreach (var change in e.Changes)
-            {
-                // Get changed interval
-                /// this optimization won't work with multirow text styling (such as commentaries in VS)
-                /// 
-
-                var paragraphStart = GetParagraphByOffset(change.Offset, LogicalDirection.Forward);
-                if (paragraphStart is null)
-                    continue;
-
-                var paragraphEnd = GetParagraphByOffset(change.Offset + change.AddedLength, LogicalDirection.Backward);
-                if (paragraphEnd is null)
-                    continue;
-
-                Highlight(paragraphStart.ContentStart, paragraphEnd.ContentEnd);
-            }
-        }
-
-        public void FullHighlight()
-        {
-            if (rtb.Document is null)
-                return;
-
-            Highlight(rtb.Document.ContentStart, rtb.Document.ContentEnd);
-        }
-
-        private void Highlight(TextPointer start, TextPointer end)
+        protected override void Highlight(TextPointer start, TextPointer end)
         {
             // Unsubscribe from TextChanged
             WeakReferenceMessenger.Default.Unregister<TextChangedMessage>(this);
-            
+
             // clear all text styling in the range
             var range = new TextRange(start, end);
             range.ClearAllProperties();
 
             if (language != null)
             {
-                List<Keyword> tags = new();
-
                 // Find all keywords in the range
                 for (var navigator = start;
                     navigator.CompareTo(end) < 0;
@@ -125,7 +69,7 @@ namespace SynergyTextEditor.Classes
                     if (context == TextPointerContext.ElementStart && navigator.Parent is Run run)
                     {
                         if (run.Text != "")
-                            tags.AddRange(GetTagsFromRun(run));
+                            DesignateKeywordsInRun(run);
                     }
                 }
 
@@ -137,14 +81,13 @@ namespace SynergyTextEditor.Classes
             WeakReferenceMessenger.Default.Register<TextChangedMessage>(this);
         }
 
-        private List<Keyword> GetTagsFromRun(Run run)
+        private void DesignateKeywordsInRun(Run run)
         {
-            var res = new List<Keyword>();
             var text = run.Text;
 
             int endId, startId = endId = 0;
 
-            for(int i = 0; i < text.Length; i++)
+            for (int i = 0; i < text.Length; i++)
             {
                 var isSpecial = language.IsSpecial(text[i].ToString());
 
@@ -162,24 +105,13 @@ namespace SynergyTextEditor.Classes
                 }
 
                 // specifying other words for coloring
-                if (char.IsWhiteSpace(text[i]) || /*SeparatorChars.Contains(text[i])*/ isSpecial)
+                if (char.IsWhiteSpace(text[i]) || isSpecial)
                 {
-                    if(i > 0 && !(char.IsWhiteSpace(text[i - 1]) || /*SeparatorChars.Contains(text[i - 1])*/language.IsSpecial(text[i - 1].ToString())))
+                    if (i > 0 && !(char.IsWhiteSpace(text[i - 1]) || language.IsSpecial(text[i - 1].ToString())))
                     {
                         endId = i - 1;
 
                         var word = text.Substring(startId, endId - startId + 1);
-
-                        //if (IsKeyword(word))
-                        //{
-                        //    var tag = new Keyword()
-                        //    {
-                        //        StartPosition = run.ContentStart.GetPositionAtOffset(startId, LogicalDirection.Forward),
-                        //        EndPosition = run.ContentStart.GetPositionAtOffset(endId + 1, LogicalDirection.Backward),
-                        //        Word = word
-                        //    };
-                        //    res.Add(tag);
-                        //}
 
                         var keyword = new Keyword()
                         {
@@ -189,8 +121,6 @@ namespace SynergyTextEditor.Classes
                         };
 
                         language.TryPut(keyword);
-
-                        //res.Add(tag);
                     }
 
                     startId = i + 1;
@@ -198,16 +128,6 @@ namespace SynergyTextEditor.Classes
             }
 
             var lastword = text.Substring(startId, text.Length - startId);
-            //if (IsKeyword(lastword))
-            //{
-            //    var tag = new Keyword()
-            //    {
-            //        StartPosition = run.ContentStart.GetPositionAtOffset(startId, LogicalDirection.Forward),
-            //        EndPosition = run.ContentStart.GetPositionAtOffset(text.Length, LogicalDirection.Backward),
-            //        Word = lastword
-            //    };
-            //    res.Add(tag);
-            //}
 
             var lkeyword = new Keyword()
             {
@@ -217,55 +137,23 @@ namespace SynergyTextEditor.Classes
             };
 
             language.TryPut(lkeyword);
-
-            return res;
-        }
-
-        private Paragraph GetParagraphByOffset(int offset, LogicalDirection direction)
-        {
-            var tpOffset = rtb.Document.ContentStart.GetPositionAtOffset(offset);
-
-            if(tpOffset is null)
-                return null;
-
-            var tpOffsetForwardContext = tpOffset.GetPointerContext(LogicalDirection.Forward);
-            var tpOffsetBackwardContext = tpOffset.GetPointerContext(LogicalDirection.Backward);
-
-            var directionalContext =
-                direction == LogicalDirection.Forward ? tpOffsetForwardContext : tpOffsetBackwardContext;
-
-            // Check if tpOffset is not at the start or the begin of the text
-            //  and not in between 2 same element brackets:
-            if (directionalContext == TextPointerContext.None ||
-                (tpOffsetForwardContext == TextPointerContext.ElementEnd && tpOffsetBackwardContext == TextPointerContext.ElementEnd) ||
-                (tpOffsetForwardContext == TextPointerContext.ElementStart && tpOffsetBackwardContext == TextPointerContext.ElementStart))
-                return null;
-
-            // Get next insertion position, if tpOffset is not one:
-            if (!tpOffset.IsAtInsertionPosition)
-                tpOffset = tpOffset.GetNextInsertionPosition(direction);
-
-            if (tpOffset is null)
-                return null;
-
-            return tpOffset.Paragraph;
         }
 
         #region Message handlers
 
-        void IRecipient<TextChangedMessage>.Receive(TextChangedMessage message)
+        public override void Receive(TextChangedMessage message)
         {
             TextChanged(null, message.Value);
         }
 
-        void IRecipient<FileOpenedMessage>.Receive(FileOpenedMessage message)
+        public override void Receive(FileOpenedMessage message)
         {
             Language = languageSelector.GetLanguage(Path.GetExtension(message.Value));
 
             FullHighlight();
         }
 
-        void IRecipient<KeywordLanguageUploadedMessage>.Receive(KeywordLanguageUploadedMessage message)
+        public override void Receive(KeywordLanguageUploadedMessage message)
         {
             WeakReferenceMessenger.Default.Send(new BlockTextEditorChangeStateMessage(true));
 
@@ -278,7 +166,7 @@ namespace SynergyTextEditor.Classes
             WeakReferenceMessenger.Default.Send(new BlockTextEditorChangeStateMessage(false));
         }
 
-        void IRecipient<SelectKeywordLanguageMessage>.Receive(SelectKeywordLanguageMessage message)
+        public override void Receive(SelectKeywordLanguageMessage message)
         {
             WeakReferenceMessenger.Default.Send(new BlockTextEditorChangeStateMessage(true));
 
@@ -313,5 +201,10 @@ namespace SynergyTextEditor.Classes
         }
 
         #endregion
+
+        public override void Dispose()
+        {
+            
+        }
     }
 }

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace SynergyTextEditor.Messages
 {
-    internal class SelectSyntaxCommandRequestMessage : RequestMessage<RelayCommand<string>>
+    public class SelectSyntaxCommandRequestMessage : RequestMessage<RelayCommand<string>>
     {
     }
 }

@@ -27,7 +27,8 @@ namespace SynergyTextEditor
                     .RegisterDPConverters()
                     .RegisterHighlightingSystem()
                     .RegisterMenuItemRadioControllers()
-                    .RegisterThemeServices();
+                    .RegisterThemeServices()
+                    .RegisterWorkers();
 
                 services.AddSingleton<App>();
                 services.AddSingleton<MainWindow>();

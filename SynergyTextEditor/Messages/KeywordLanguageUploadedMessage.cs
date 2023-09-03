@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace SynergyTextEditor.Messages
 {
-    internal class KeywordLanguageUploadedMessage : ValueChangedMessage<string>
+    public class KeywordLanguageUploadedMessage : ValueChangedMessage<string>
     {
         public KeywordLanguageUploadedMessage(string value) : base(value)
         {
