@@ -10,7 +10,7 @@ using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Media;
 
-#nullable disable
+
 
 namespace SynergyTextEditor.Classes
 {

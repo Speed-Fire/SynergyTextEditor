@@ -12,7 +12,7 @@ using SynergyTextEditor.Classes.Utilities;
 using CommunityToolkit.Mvvm.Messaging;
 using SynergyTextEditor.Messages;
 
-#nullable disable
+
 
 namespace SynergyTextEditor.Classes
 {

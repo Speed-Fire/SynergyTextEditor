@@ -10,7 +10,7 @@ using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Markup;
 
-#nullable disable
+
 
 namespace SynergyTextEditor.Classes.Helpers
 {

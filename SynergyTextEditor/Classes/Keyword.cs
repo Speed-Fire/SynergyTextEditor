@@ -13,7 +13,7 @@ using System.Windows.Documents;
 using System.Windows.Media.Animation;
 using System.Xml.Serialization;
 
-#nullable disable
+
 
 namespace SynergyTextEditor.Classes
 {

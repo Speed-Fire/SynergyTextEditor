@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 using System.Windows.Controls;
 using System.Windows.Input;
 
-#nullable disable
+
 
 namespace SynergyTextEditor.Classes.Utilities.UI
 {

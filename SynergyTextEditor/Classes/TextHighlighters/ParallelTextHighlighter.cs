@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 using System.Windows.Controls;
 using System.Windows.Documents;
 
-#nullable disable
+
 
 namespace SynergyTextEditor.Classes.TextHighlighters
 {

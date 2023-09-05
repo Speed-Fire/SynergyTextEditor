@@ -15,7 +15,7 @@ using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Input;
 
-#nullable disable
+
 
 namespace SynergyTextEditor.ViewModels
 {

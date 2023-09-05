@@ -19,7 +19,7 @@ using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Threading;
 
-#nullable disable
+
 
 namespace SynergyTextEditor.Classes.TextHighlighters
 {

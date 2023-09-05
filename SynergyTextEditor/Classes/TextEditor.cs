@@ -14,7 +14,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
 
-#nullable disable
+
 
 namespace SynergyTextEditor.Classes
 {

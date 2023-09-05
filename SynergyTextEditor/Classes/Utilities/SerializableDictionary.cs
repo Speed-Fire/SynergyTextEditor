@@ -10,7 +10,7 @@ using System.Windows.Input;
 using System.Xml;
 using System.Xml.Serialization;
 
-#nullable disable
+
 
 namespace SynergyTextEditor.Classes.Utilities
 {
