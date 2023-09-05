@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using SynergyTextEditor.Classes.Converters;
 using SynergyTextEditor.Classes.MenuItemRadioControllers;
+using SynergyTextEditor.Classes.TextHighlighters;
 using SynergyTextEditor.Classes.Workers;
 using System;
 using System.Collections.Generic;
@@ -26,7 +27,8 @@ namespace SynergyTextEditor.Classes.Extensions
         {
             services
                 .AddSingleton<IKeywordLanguageLoader, KeywordLanguageLoader>()
-                .AddSingleton<IKeywordLanguageSelector, KeywordLanguageSelector>();
+                .AddSingleton<IKeywordLanguageSelector, KeywordLanguageSelector>()
+                .AddTransient<TextHighlighterBase, ParallelTextHighlighter>();
             
             return services;
         }

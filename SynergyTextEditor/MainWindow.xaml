@@ -4,7 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SynergyTextEditor"
-        xmlns:classes="clr-namespace:SynergyTextEditor.Classes"
+        xmlns:uiCntrls="clr-namespace:SynergyTextEditor.Classes.UIControls"
         mc:Ignorable="d"
         MouseWheel="Window_MouseWheel"
         Title="MainWindow" Height="450" Width="800">
@@ -106,16 +106,18 @@
                 HorizontalAlignment="Center"
                 Fill="Gray"/>
 
-            <RichTextBox
+            <uiCntrls:AdvancedRichTextBox
                 x:Name="Editor"
                 Style="{StaticResource EditorStyle}" 
                 Grid.Column="2"
+                TextChanged="Editor_TextChanged"
+                TextContentChanged="Editor_TextContentChanged"
                 ScrollViewer.ScrollChanged="Editor_ScrollChanged">
                 <RichTextBox.LayoutTransform>
                     <ScaleTransform ScaleX="{Binding ElementName=Scale, Path=Value}"
                                     ScaleY="{Binding ElementName=Scale, Path=Value}"/>
                 </RichTextBox.LayoutTransform>
-            </RichTextBox>
+            </uiCntrls:AdvancedRichTextBox>
         </Grid>
 
         <Slider x:Name="Scale"

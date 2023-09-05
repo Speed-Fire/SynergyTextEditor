@@ -20,16 +20,19 @@ namespace SynergyTextEditor.Classes.TextHighlighters
         IRecipient<KeywordLanguageUploadedMessage>,
         IRecipient<SelectKeywordLanguageMessage>
     {
-        protected readonly RichTextBox rtb;
+        protected RichTextBox rtb;
         protected readonly IKeywordLanguageSelector languageSelector;
 
         protected abstract string CurrentLanguageName { get; }
 
-        protected TextHighlighterBase(RichTextBox rtb)
+        protected TextHighlighterBase(IKeywordLanguageSelector languageSelector)
+        {
+            this.languageSelector = languageSelector;
+        }
+
+        public virtual void Init(RichTextBox rtb)
         {
             this.rtb = rtb;
-
-            languageSelector = Program.AppHost.Services.GetService<IKeywordLanguageSelector>();
 
             WeakReferenceMessenger.Default.RegisterAll(this);
 

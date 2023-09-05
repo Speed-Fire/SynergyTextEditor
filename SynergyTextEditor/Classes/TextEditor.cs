@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Win32;
 using SynergyTextEditor.Classes.SavingStrategies;
+using SynergyTextEditor.Classes.UIControls;
 using SynergyTextEditor.Messages;
 using System;
 using System.Collections.Generic;
@@ -19,7 +20,7 @@ namespace SynergyTextEditor.Classes
 {
     public class TextEditor :
         INotifyPropertyChanged,
-        IRecipient<TextChangedMessage>,
+        IRecipient<FileChangedMessage>,
         IRecipient<BlockTextEditorChangeStateMessage>
     {
         public event PropertyChangedEventHandler PropertyChanged;
@@ -27,7 +28,14 @@ namespace SynergyTextEditor.Classes
         private Dictionary<string, ISavingStrategy> SavingStrategies = new();
 
         public bool IsTextChanged { get; private set; } = false;
-        private bool IsTextChangedBlocked { get; set; } = false;
+
+        private volatile bool isTextChangedBlocked;
+        private bool IsTextChangedBlocked { get => isTextChangedBlocked; 
+            set
+            {
+                isTextChangedBlocked = value;
+            }
+        }
 
 
         private readonly FlowDocument document;
@@ -126,7 +134,7 @@ namespace SynergyTextEditor.Classes
             IsTextChangedBlocked = val;
         }
 
-        public void OnTextChanged(TextChangedEventArgs e)
+        public void OnTextChanged(TextContentChangedEventArgs e)
         {
             if(IsTextChangedBlocked) return;
 
@@ -140,7 +148,7 @@ namespace SynergyTextEditor.Classes
 
         #region Message handlers
 
-        void IRecipient<TextChangedMessage>.Receive(TextChangedMessage message)
+        void IRecipient<FileChangedMessage>.Receive(FileChangedMessage message)
         {
             OnTextChanged(message.Value);
         }

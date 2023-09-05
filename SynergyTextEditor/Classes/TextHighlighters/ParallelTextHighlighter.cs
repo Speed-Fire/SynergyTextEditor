@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using SynergyTextEditor.Classes.Workers;
 using SynergyTextEditor.Messages;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -23,9 +24,17 @@ namespace SynergyTextEditor.Classes.TextHighlighters
 
         protected override string CurrentLanguageName => highlightingWorker.CurrentLanguageName;
 
-        public ParallelTextHighlighter(RichTextBox rtb) : base(rtb)
+        public ParallelTextHighlighter(IKeywordLanguageSelector languageSelector,
+            TextHighlightingWorker highlightingWorker) 
+            :
+            base(languageSelector)
         {
-            highlightingWorker = Program.AppHost.Services.GetService<TextHighlightingWorker>();
+            this.highlightingWorker = highlightingWorker;
+        }
+
+        public override void Init(RichTextBox rtb)
+        {
+            base.Init(rtb);
 
             highlightingWorker.Run(new TextHighlightingWorkerArgs()
             {
@@ -61,8 +70,6 @@ namespace SynergyTextEditor.Classes.TextHighlighters
 
         public override void Receive(KeywordLanguageUploadedMessage message)
         {
-            WeakReferenceMessenger.Default.Send(new BlockTextEditorChangeStateMessage(true));
-
             highlightingWorker.ClearIntervals();
 
             string filename = WeakReferenceMessenger.Default.Send<OpenedFileNameRequestMessage>();
@@ -70,14 +77,10 @@ namespace SynergyTextEditor.Classes.TextHighlighters
                 .SetLanguage(languageSelector.GetLanguage(Path.GetExtension(filename)));
 
             FullHighlight();
-
-            WeakReferenceMessenger.Default.Send(new BlockTextEditorChangeStateMessage(false));
         }
 
         public override void Receive(SelectKeywordLanguageMessage message)
         {
-            WeakReferenceMessenger.Default.Send(new BlockTextEditorChangeStateMessage(true));
-
             highlightingWorker.ClearIntervals();
 
             var langname = message.Value;
@@ -85,8 +88,6 @@ namespace SynergyTextEditor.Classes.TextHighlighters
                 .SetLanguage(languageSelector.GetLanguageByName(langname));
 
             FullHighlight();
-
-            WeakReferenceMessenger.Default.Send(new BlockTextEditorChangeStateMessage(false));
         }
 
         #endregion

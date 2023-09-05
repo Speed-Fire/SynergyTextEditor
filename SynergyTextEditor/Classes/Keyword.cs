@@ -97,22 +97,6 @@ namespace SynergyTextEditor.Classes
 
         public void ApplyStyling()
         {
-            //foreach (var tag in tags)
-            //{
-            //    try
-            //    {
-            //        var range = new TextRange(tag.StartPosition, tag.EndPosition);
-
-            //        foreach (var tuple in styles)
-            //        {
-            //            range.ApplyPropertyValue(tuple.Item1, tuple.Item2);
-            //        }
-            //    }
-            //    catch { }
-            //}
-
-            //tags.Clear();
-
             while (!tags.IsEmpty)
             {
                 Keyword tag;
@@ -199,12 +183,15 @@ namespace SynergyTextEditor.Classes
                 deser = formatter.Deserialize(fs) as KeywordLanguageSerializable;
             }
 
-            var converter = Program.AppHost.Services.GetService<IConverter<TupleSerializable<string, string>, Tuple<DependencyProperty, object>>>();
+            var converter =
+                Program.AppHost.Services
+                .GetService<IConverter<TupleSerializable<string, string>,
+                                       Tuple<DependencyProperty, object>>>();
 
             var groups = new List<KeywordGroup>();
             foreach (var group in deser.keywordGroups)
             {
-                var styles = group.styles.ConvertAll(t => converter.Convert(t));
+                var styles = group.styles.ConvertAll(converter.Convert);
 
                 groups.Add(new KeywordGroup(group.keywords, styles, group.keywordGroupType));
             }

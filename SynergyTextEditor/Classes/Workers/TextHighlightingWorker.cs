@@ -20,11 +20,17 @@ namespace SynergyTextEditor.Classes.Workers
         public IRecipient<TextChangedMessage> listener;
     }
 
+    public struct HighlightingInterval
+    {
+        public TextPointer Start;
+        public TextPointer End;
+    }
+
     public class TextHighlightingWorker : BaseWorker, INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler PropertyChanged;
 
-        private readonly ConcurrentQueue<Tuple<TextPointer, TextPointer>> _changedIntervals = new();
+        private readonly ConcurrentQueue<HighlightingInterval> _changedIntervals = new();
 
         private RichTextBox _rtb;
         private IRecipient<TextChangedMessage> _textChangedListener;
@@ -54,11 +60,9 @@ namespace SynergyTextEditor.Classes.Workers
         {
             if (!_changedIntervals.IsEmpty)
             {
-                Tuple<TextPointer, TextPointer> interval = null;
-
-                if (_changedIntervals.TryDequeue(out interval))
+                if (_changedIntervals.TryDequeue(out HighlightingInterval interval))
                 {
-                    Highlight(interval.Item1, interval.Item2);
+                    Highlight(interval.Start, interval.End);
                 }
             }
         }
@@ -67,10 +71,10 @@ namespace SynergyTextEditor.Classes.Workers
 
         public void PushInterval(TextPointer intervalStart, TextPointer intervalEnd)
         {
-            PushInterval(Tuple.Create(intervalStart, intervalEnd));
+            PushInterval(new HighlightingInterval() { Start = intervalStart, End = intervalEnd });
         }
 
-        public void PushInterval(Tuple<TextPointer, TextPointer> interval)
+        public void PushInterval(HighlightingInterval interval)
         {
             _changedIntervals.Enqueue(interval);
         }
@@ -167,7 +171,7 @@ namespace SynergyTextEditor.Classes.Workers
             }
 
             // Subscribe to TextChanged
-            WeakReferenceMessenger.Default.Register<TextChangedMessage>(_textChangedListener);
+            WeakReferenceMessenger.Default.Register(_textChangedListener);
         }
 
         private void DesignateKeywordsInRun(Run run)

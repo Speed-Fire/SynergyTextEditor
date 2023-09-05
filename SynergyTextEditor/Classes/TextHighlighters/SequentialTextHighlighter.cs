@@ -43,7 +43,7 @@ namespace SynergyTextEditor.Classes.TextHighlighters
 
         protected override string CurrentLanguageName => Language is null ? null : Language.Name;
 
-        public SequentialTextHighlighter(RichTextBox rtb) : base(rtb)
+        public SequentialTextHighlighter(IKeywordLanguageSelector languageSelector) : base(languageSelector)
         {
             PropertyChanged += TextHighlighter_PropertyChanged;
         }
@@ -155,28 +155,20 @@ namespace SynergyTextEditor.Classes.TextHighlighters
 
         public override void Receive(KeywordLanguageUploadedMessage message)
         {
-            WeakReferenceMessenger.Default.Send(new BlockTextEditorChangeStateMessage(true));
-
             string filename = WeakReferenceMessenger.Default.Send<OpenedFileNameRequestMessage>();
 
             Language = languageSelector.GetLanguage(Path.GetExtension(filename));
 
             FullHighlight();
-
-            WeakReferenceMessenger.Default.Send(new BlockTextEditorChangeStateMessage(false));
         }
 
         public override void Receive(SelectKeywordLanguageMessage message)
         {
-            WeakReferenceMessenger.Default.Send(new BlockTextEditorChangeStateMessage(true));
-
             var langname = message.Value;
 
             Language = languageSelector.GetLanguageByName(langname);
 
             FullHighlight();
-
-            WeakReferenceMessenger.Default.Send(new BlockTextEditorChangeStateMessage(false));
         }
 
         #endregion

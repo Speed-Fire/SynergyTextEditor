@@ -2,6 +2,7 @@
 using SynergyTextEditor.Classes;
 using SynergyTextEditor.Classes.MenuItemRadioControllers;
 using SynergyTextEditor.Classes.TextHighlighters;
+using SynergyTextEditor.Classes.UIControls;
 using SynergyTextEditor.Messages;
 using SynergyTextEditor.ViewModels;
 using System;
@@ -34,7 +35,8 @@ namespace SynergyTextEditor
         private readonly TextHighlighterBase _textHighlighter;
 
         public MainWindow(SyntaxMenuItemRadioController syntaxMenuItemRadioController,
-            ThemeMenuItemRadioController themeMenuItemRadioController)
+            ThemeMenuItemRadioController themeMenuItemRadioController,
+            TextHighlighterBase textHighlighter)
         {
             InitializeComponent();
 
@@ -42,14 +44,13 @@ namespace SynergyTextEditor
 
             var vm = new MainVM(Editor.Document);
 
-            Editor.TextChanged += Editor_TextChanged;
-
             DataContext = _viewModel = vm;
             CommandBindings.AddRange(_viewModel.CommandBindings);
 
             #region Initialize visual components
 
-            _textHighlighter = new ParallelTextHighlighter(Editor);
+            _textHighlighter = textHighlighter;
+            _textHighlighter.Init(Editor);
 
             _syntaxMenuItemRadioController = syntaxMenuItemRadioController;
             _syntaxMenuItemRadioController.Fill(SyntaxList);
@@ -62,9 +63,24 @@ namespace SynergyTextEditor
             #endregion
         }
 
+        /// <summary>
+        /// All text changes including text format changes.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Editor_TextChanged(object sender, TextChangedEventArgs e)
         {
-            WeakReferenceMessenger.Default.Send(new TextChangedMessage(e));
+            WeakReferenceMessenger.Default.Send(new TextChangedMessage(e));   
+        }
+
+        /// <summary>
+        /// User entering/removing/pasting/replacing text.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Editor_TextContentChanged(object sender, TextContentChangedEventArgs e)
+        {
+            WeakReferenceMessenger.Default.Send(new FileChangedMessage(e));
         }
 
         private static void CreateHighlightLanguage()
