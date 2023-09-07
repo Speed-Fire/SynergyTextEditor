@@ -55,6 +55,8 @@ namespace SynergyTextEditor.Classes
 
             var first = width * 4;
 
+            _lineNumbers.MaxWidth = first;
+
             _widthDictionary.Add(2, first);
             _widthDictionary.Add(3, first + width);
             _widthDictionary.Add(4, first + width * 2);

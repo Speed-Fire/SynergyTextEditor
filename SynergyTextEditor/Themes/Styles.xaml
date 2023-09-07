@@ -13,6 +13,7 @@
         <Setter Property="Block.LineHeight" Value="2"/>
         <Setter Property="AcceptsTab" Value="True"/>
         <Setter Property="FontSize" Value="14"/>
+        <Setter Property="CaretBrush" Value="{DynamicResource RichTextBox.Foreground}"/>
     </Style>
 
     <Style x:Key="LineNumeratorStyle" TargetType="RichTextBox">
