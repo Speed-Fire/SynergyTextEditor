@@ -116,7 +116,12 @@
             <Canvas x:Name="DrawingPanel"
                     Grid.Column="2"
                     Panel.ZIndex="0"
-                    Background="{DynamicResource RichTextBox.Background}"/>
+                    Background="{DynamicResource RichTextBox.Background}">
+                <Canvas.LayoutTransform>
+                    <ScaleTransform ScaleX="{Binding ElementName=Scale, Path=Value}"
+                                    ScaleY="{Binding ElementName=Scale, Path=Value}"/>
+                </Canvas.LayoutTransform>
+            </Canvas>
 
             <uiCntrls:AdvancedRichTextBox
                 x:Name="Editor"
