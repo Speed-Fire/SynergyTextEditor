@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.Messaging;
 using SynergyTextEditor.Classes.Extensions;
+using SynergyTextEditor.Classes.Helpers;
 using SynergyTextEditor.Messages;
 using System;
 using System.Collections.Generic;
@@ -22,13 +23,7 @@ namespace SynergyTextEditor.Classes
         private readonly RichTextBox _lineNumbers;
         private readonly RichTextBox _inputText;
 
-        private readonly Dictionary<int, double> _widthDictionary = new()
-        {
-            { 2, 28},
-            { 3, 35},
-            { 4, 45},
-            { 5, 55}
-        };
+        private readonly Dictionary<int, double> _widthDictionary = new();
 
         private const int _widthStep = 10; // 25 per 2 ciphers
         private const int _minWidth = 28;  // 35 per 3 ciphers
@@ -43,12 +38,27 @@ namespace SynergyTextEditor.Classes
             _lineNumbers = lineNumbers;
             _inputText = inputText;
 
+            InitWidthDictionary();
             StartupInitialization();
 
             WeakReferenceMessenger.Default.RegisterAll(this);
 
+            var width = SymbolHelper.GetStringWidth(_inputText, "28");
+
             _inputText.SelectionChanged += _inputText_SelectionChanged;
             _inputText.TextChanged += _inputText_TextChanged;
+        }
+
+        private void InitWidthDictionary()
+        {
+            var width = double.Ceiling(SymbolHelper.GetCharWidth(_inputText, '2'));
+
+            var first = width * 4;
+
+            _widthDictionary.Add(2, first);
+            _widthDictionary.Add(3, first + width);
+            _widthDictionary.Add(4, first + width * 2);
+            _widthDictionary.Add(5, first + width * 3);
         }
 
         private void StartupInitialization()
