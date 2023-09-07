@@ -7,7 +7,8 @@
         xmlns:uiCntrls="clr-namespace:SynergyTextEditor.Classes.UIControls"
         mc:Ignorable="d"
         MouseWheel="Window_MouseWheel"
-        Title="MainWindow" Height="450" Width="800">
+        Title="{Binding ProgramTitle}"
+        Height="450" Width="800">
 
     <Grid>
         <Grid.RowDefinitions>

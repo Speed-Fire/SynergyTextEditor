@@ -3,9 +3,11 @@ using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Win32;
 using SynergyTextEditor.Classes;
+using SynergyTextEditor.Classes.Blockers;
 using SynergyTextEditor.Messages;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -19,13 +21,55 @@ using System.Windows.Input;
 
 namespace SynergyTextEditor.ViewModels
 {
-    public class MainVM : BaseViewModel
+    public class MainVM :
+        BaseViewModel,
+        IRecipient<FileChangedMessage>
     {
         private readonly TextEditor textEditor;
         private readonly IKeywordLanguageSelector languageSelector;
         private readonly AppThemeController appThemeController;
 
-        private string OpenedFile { get; set; } = "";
+        private string programTitle = "SynergyPad - New";
+        public string ProgramTitle
+        {
+            get
+            {
+                return programTitle;
+            }
+            set
+            {
+                programTitle = value;
+                OnPropertyChanged(nameof(ProgramTitle));
+            }
+        }
+
+        private string openedFile = "";
+        public string OpenedFile
+        {
+            get
+            {
+                return openedFile;
+            }
+            set
+            {
+                openedFile = value;
+                OnPropertyChanged(nameof(OpenedFile));
+            }
+        }
+
+        private bool isFileSaved = false;
+        public bool IsFileSaved
+        {
+            get
+            {
+                return isFileSaved;
+            }
+            set
+            {
+                isFileSaved = value;
+                OnPropertyChanged(nameof(IsFileSaved));
+            }
+        }
 
         private bool IsFileOpen => !string.IsNullOrWhiteSpace(OpenedFile);
 
@@ -36,6 +80,8 @@ namespace SynergyTextEditor.ViewModels
 
             textEditor = new TextEditor(document);
 
+            WeakReferenceMessenger.Default.Register(this);
+
             RegisterMessages();
             RegisterCommandBindings();
 
@@ -43,6 +89,8 @@ namespace SynergyTextEditor.ViewModels
             {
                 RequestSaving(sender, null);
             };
+
+            PropertyChanged += MainVM_PropertyChanged;
         }
 
         #region BaseViewModel
@@ -97,6 +145,7 @@ namespace SynergyTextEditor.ViewModels
 
                 WeakReferenceMessenger.Default.Send(new BlockTextEditorChangeStateMessage(false));
 
+                isFileSaved = true;
                 OpenedFile = ofd.FileName;
             }
         }
@@ -104,6 +153,9 @@ namespace SynergyTextEditor.ViewModels
         private void CreateFile(object sender, ExecutedRoutedEventArgs e)
         {
             RequestSaving(sender, e);
+
+            isFileSaved = false;
+            OpenedFile = "";
 
             textEditor.Create(true);
         }
@@ -113,7 +165,10 @@ namespace SynergyTextEditor.ViewModels
             if (!IsFileOpen)
                 SaveAsFile(sender, e);
             else
+            {
+                IsFileSaved = true;
                 textEditor.Save(OpenedFile);
+            }
         }
 
         private void SaveAsFile(object sender, ExecutedRoutedEventArgs e)
@@ -122,6 +177,7 @@ namespace SynergyTextEditor.ViewModels
             sfd.Filter = "Text Files (*.txt)|*.txt|RichText Files (*.rtf)|*.rtf|XAML Files (*.xaml)|*.xaml|All files (*.*)|*.*";
             if (sfd.ShowDialog() == true)
             {
+                IsFileSaved = true;
                 textEditor.Save(sfd.FileName);
             }
         }
@@ -189,6 +245,43 @@ namespace SynergyTextEditor.ViewModels
                 if (res == MessageBoxResult.Yes)
                     SaveFile(sender, e);
             }
+        }
+
+        private void MainVM_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            switch(e.PropertyName)
+            {
+                case nameof(OpenedFile):
+                    {
+                        var programName = "SynergyPad - ";
+
+                        var fileName = string.IsNullOrEmpty(OpenedFile) ? "New" : Path.GetFileName(OpenedFile);
+
+                        var end = IsFileSaved ? "" : "*";
+
+                        ProgramTitle = programName + fileName + end;
+                    }
+                    break;
+                case nameof(IsFileSaved):
+                    {
+                        if(IsFileSaved && ProgramTitle.EndsWith('*'))
+                        {
+                            ProgramTitle = ProgramTitle[..^1]; // .Substring(0, ProgramTitle.Length - 1)
+                        }
+                        else if(!IsFileSaved && !ProgramTitle.EndsWith('*'))
+                        {
+                            ProgramTitle += "*";
+                        }
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        public void Receive(FileChangedMessage message)
+        {
+            IsFileSaved = false;
         }
     }
 }
