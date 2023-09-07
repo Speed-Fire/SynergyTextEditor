@@ -21,7 +21,9 @@ namespace SynergyTextEditor.Classes.Workers
         public IRecipient<TextChangedMessage> listener;
     }
 
-    public class TextHighlightingWorker : BaseWorker, INotifyPropertyChanged
+    public class TextHighlightingWorker : 
+        BaseWorker,
+        INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler PropertyChanged;
 

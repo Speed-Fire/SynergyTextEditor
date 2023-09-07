@@ -3,7 +3,7 @@ using SynergyTextEditor.Classes;
 using SynergyTextEditor.Classes.Blockers;
 using SynergyTextEditor.Classes.SyntaxHighlighting.Highlighters.BracketBlockHighlighting;
 using SynergyTextEditor.Classes.MenuItemRadioControllers;
-using SynergyTextEditor.Classes.SyntaxHighlighting.Highlighters.TextHighlighters;
+using SynergyTextEditor.Classes.SyntaxHighlighting.Highlighters.KeywordHighlighting;
 using SynergyTextEditor.Classes.UIControls;
 using SynergyTextEditor.Messages;
 using SynergyTextEditor.ViewModels;
@@ -38,11 +38,11 @@ namespace SynergyTextEditor
         private readonly TextChangedBlocker _textChangedBlocker;
 
         private readonly MainVM _viewModel;
-        private readonly TextHighlighterBase _textHighlighter;
+        private readonly KeywordHighlighterBase _textHighlighter;
 
         public MainWindow(SyntaxMenuItemRadioController syntaxMenuItemRadioController,
             ThemeMenuItemRadioController themeMenuItemRadioController,
-            TextHighlighterBase textHighlighter,
+            KeywordHighlighterBase textHighlighter,
             BracketBlockHighlighter bracketBlockHighlighter)
         {
             InitializeComponent();
@@ -60,7 +60,7 @@ namespace SynergyTextEditor
             #region Initialize visual components
 
             _textHighlighter = textHighlighter;
-            _textHighlighter.Init(new TextHighlighterInitArgs(Editor));
+            _textHighlighter.Init(new KeywordHighlighterInitArgs(Editor));
 
             _syntaxMenuItemRadioController = syntaxMenuItemRadioController;
             _syntaxMenuItemRadioController.Fill(SyntaxList);

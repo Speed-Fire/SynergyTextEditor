@@ -11,9 +11,9 @@ using System.Windows.Documents;
 
 
 
-namespace SynergyTextEditor.Classes.SyntaxHighlighting.Highlighters.TextHighlighters
+namespace SynergyTextEditor.Classes.SyntaxHighlighting.Highlighters.KeywordHighlighting
 {
-    public abstract class TextHighlighterBase :
+    public abstract class KeywordHighlighterBase :
         SyntaxHighlighter,
         IRecipient<FileOpenedMessage>,
         IRecipient<KeywordLanguageUploadedMessage>,
@@ -23,14 +23,14 @@ namespace SynergyTextEditor.Classes.SyntaxHighlighting.Highlighters.TextHighligh
 
         protected abstract string CurrentLanguageName { get; }
 
-        protected TextHighlighterBase(IKeywordLanguageSelector languageSelector)
+        protected KeywordHighlighterBase(IKeywordLanguageSelector languageSelector)
         {
             this.languageSelector = languageSelector;
         }
 
         public override void Init(SyntaxHighlighterInitArgs args)
         {
-            if (!(args is TextHighlighterInitArgs))
+            if (!(args is KeywordHighlighterInitArgs))
             {
                 throw new ArgumentException("Incorrect type of inition args!");
             }

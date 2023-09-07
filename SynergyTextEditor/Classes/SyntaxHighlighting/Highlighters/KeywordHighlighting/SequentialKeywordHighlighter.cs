@@ -21,10 +21,10 @@ using System.Windows.Threading;
 
 
 
-namespace SynergyTextEditor.Classes.SyntaxHighlighting.Highlighters.TextHighlighters
+namespace SynergyTextEditor.Classes.SyntaxHighlighting.Highlighters.KeywordHighlighting
 {
-    public sealed class SequentialTextHighlighter :
-        TextHighlighterBase,
+    public sealed class SequentialKeywordHighlighter :
+        KeywordHighlighterBase,
         INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler PropertyChanged;
@@ -43,7 +43,7 @@ namespace SynergyTextEditor.Classes.SyntaxHighlighting.Highlighters.TextHighligh
 
         protected override string CurrentLanguageName => Language is null ? null : Language.Name;
 
-        public SequentialTextHighlighter(IKeywordLanguageSelector languageSelector) : base(languageSelector)
+        public SequentialKeywordHighlighter(IKeywordLanguageSelector languageSelector) : base(languageSelector)
         {
             PropertyChanged += TextHighlighter_PropertyChanged;
         }

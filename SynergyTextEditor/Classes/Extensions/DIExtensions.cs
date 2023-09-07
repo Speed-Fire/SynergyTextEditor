@@ -2,7 +2,7 @@
 using SynergyTextEditor.Classes.SyntaxHighlighting.Highlighters.BracketBlockHighlighting;
 using SynergyTextEditor.Classes.Converters;
 using SynergyTextEditor.Classes.MenuItemRadioControllers;
-using SynergyTextEditor.Classes.SyntaxHighlighting.Highlighters.TextHighlighters;
+using SynergyTextEditor.Classes.SyntaxHighlighting.Highlighters.KeywordHighlighting;
 using SynergyTextEditor.Classes.Workers;
 using System;
 using System.Collections.Generic;
@@ -40,7 +40,7 @@ namespace SynergyTextEditor.Classes.Extensions
             services
                 .AddSingleton<IKeywordLanguageLoader, KeywordLanguageLoader>()
                 .AddSingleton<IKeywordLanguageSelector, KeywordLanguageSelector>()
-                .AddTransient<TextHighlighterBase, ParallelTextHighlighter>();
+                .AddTransient<KeywordHighlighterBase, ParallelKeywordHighlighter>();
 
             return services;
         }

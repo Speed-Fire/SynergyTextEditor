@@ -15,16 +15,16 @@ using System.Windows.Documents;
 
 
 
-namespace SynergyTextEditor.Classes.SyntaxHighlighting.Highlighters.TextHighlighters
+namespace SynergyTextEditor.Classes.SyntaxHighlighting.Highlighters.KeywordHighlighting
 {
-    public sealed class ParallelTextHighlighter :
-        TextHighlighterBase
+    public sealed class ParallelKeywordHighlighter :
+        KeywordHighlighterBase
     {
         private readonly TextHighlightingWorker highlightingWorker;
 
         protected override string CurrentLanguageName => highlightingWorker.CurrentLanguageName;
 
-        public ParallelTextHighlighter(IKeywordLanguageSelector languageSelector,
+        public ParallelKeywordHighlighter(IKeywordLanguageSelector languageSelector,
             TextHighlightingWorker highlightingWorker) 
             :
             base(languageSelector)
