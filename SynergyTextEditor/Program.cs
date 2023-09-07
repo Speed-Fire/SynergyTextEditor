@@ -28,7 +28,8 @@ namespace SynergyTextEditor
                     .RegisterWorkers()
                     .RegisterHighlightingSystem()
                     .RegisterMenuItemRadioControllers()
-                    .RegisterThemeServices();
+                    .RegisterThemeServices()
+                    .RegisterBracketBlockHighlightingSystem();
 
                 services.AddSingleton<App>();
                 services.AddSingleton<MainWindow>();

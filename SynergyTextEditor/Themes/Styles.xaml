@@ -12,6 +12,7 @@
         <Setter Property="Foreground" Value="{DynamicResource RichTextBox.Foreground}"/>
         <Setter Property="Block.LineHeight" Value="2"/>
         <Setter Property="AcceptsTab" Value="True"/>
+        <Setter Property="FontSize" Value="14"/>
     </Style>
 
     <Style x:Key="LineNumeratorStyle" TargetType="RichTextBox">
@@ -22,6 +23,7 @@
         <Setter Property="IsReadOnlyCaretVisible" Value="False"/>
         <Setter Property="TextBlock.TextAlignment" Value="Right"/>
         <Setter Property="Block.LineHeight" Value="2"/>
+        <Setter Property="FontSize" Value="14"/>
     </Style>
 
 </ResourceDictionary>

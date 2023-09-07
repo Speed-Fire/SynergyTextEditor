@@ -1,5 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.Messaging;
 using SynergyTextEditor.Classes;
+using SynergyTextEditor.Classes.Blockers;
+using SynergyTextEditor.Classes.BracketBlockHighlighting;
 using SynergyTextEditor.Classes.MenuItemRadioControllers;
 using SynergyTextEditor.Classes.TextHighlighters;
 using SynergyTextEditor.Classes.UIControls;
@@ -31,12 +33,17 @@ namespace SynergyTextEditor
         private readonly ThemeMenuItemRadioController _themeMenuItemRadioController;
         private readonly LineNumerator _lineNumerator;
 
+        private readonly BracketBlockHighlighter _bracketBlockHighlighter;
+
+        private readonly TextChangedBlocker _textChangedBlocker;
+
         private readonly MainVM _viewModel;
         private readonly TextHighlighterBase _textHighlighter;
 
         public MainWindow(SyntaxMenuItemRadioController syntaxMenuItemRadioController,
             ThemeMenuItemRadioController themeMenuItemRadioController,
-            TextHighlighterBase textHighlighter)
+            TextHighlighterBase textHighlighter,
+            BracketBlockHighlighter bracketBlockHighlighter)
         {
             InitializeComponent();
 
@@ -44,8 +51,11 @@ namespace SynergyTextEditor
 
             var vm = new MainVM(Editor.Document);
 
+            _textChangedBlocker = new TextChangedBlocker();
+
             DataContext = _viewModel = vm;
             CommandBindings.AddRange(_viewModel.CommandBindings);
+            
 
             #region Initialize visual components
 
@@ -60,6 +70,9 @@ namespace SynergyTextEditor
 
             _lineNumerator = new LineNumerator(LineNumbers, Editor);
 
+            _bracketBlockHighlighter = bracketBlockHighlighter;
+            _bracketBlockHighlighter.Init(Editor, DrawingPanel);
+
             #endregion
         }
 
@@ -70,6 +83,9 @@ namespace SynergyTextEditor
         /// <param name="e"></param>
         private void Editor_TextChanged(object sender, TextChangedEventArgs e)
         {
+            if (_textChangedBlocker.IsBlocked())
+                return;
+
             WeakReferenceMessenger.Default.Send(new TextChangedMessage(e));   
         }
 
@@ -220,6 +236,7 @@ namespace SynergyTextEditor
 
             _lineNumerator.Dispose();
             _textHighlighter.Dispose();
+            _bracketBlockHighlighter.Dispose();
         }
 
         #region Message handlers

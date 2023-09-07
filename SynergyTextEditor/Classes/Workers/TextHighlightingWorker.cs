@@ -1,4 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.Messaging;
+using SynergyTextEditor.Classes.Structs;
 using SynergyTextEditor.Messages;
 using System;
 using System.Collections.Concurrent;
@@ -18,12 +19,6 @@ namespace SynergyTextEditor.Classes.Workers
     {
         public RichTextBox rtb;
         public IRecipient<TextChangedMessage> listener;
-    }
-
-    public struct HighlightingInterval
-    {
-        public TextPointer Start;
-        public TextPointer End;
     }
 
     public class TextHighlightingWorker : BaseWorker, INotifyPropertyChanged
@@ -128,7 +123,8 @@ namespace SynergyTextEditor.Classes.Workers
         private void Highlight(TextPointer start, TextPointer end)
         {
             // Unsubscribe from TextChanged
-            WeakReferenceMessenger.Default.Unregister<TextChangedMessage>(_textChangedListener);
+            //WeakReferenceMessenger.Default.Unregister<TextChangedMessage>(_textChangedListener);
+            WeakReferenceMessenger.Default.Send(new StopTextChangedMessage(true));
 
             // clear all text styling in the range
             App.Current.Dispatcher?.Invoke(() =>
@@ -171,7 +167,8 @@ namespace SynergyTextEditor.Classes.Workers
             }
 
             // Subscribe to TextChanged
-            WeakReferenceMessenger.Default.Register(_textChangedListener);
+            //WeakReferenceMessenger.Default.Register(_textChangedListener);
+            WeakReferenceMessenger.Default.Send(new StopTextChangedMessage(false));
         }
 
         private void DesignateKeywordsInRun(Run run)

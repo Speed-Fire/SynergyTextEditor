@@ -11,7 +11,7 @@ namespace SynergyTextEditor.Classes.Workers
 {
     public interface IWorkerArgs { }
 
-    public abstract class BaseWorker
+    public abstract class BaseWorker : IDisposable
     {
         private readonly string _workerName;
         private readonly bool _isBackground;
@@ -24,7 +24,7 @@ namespace SynergyTextEditor.Classes.Workers
 
         protected CancellationTokenSource CancellationTokenSource { get; set; }
         private Thread _workerThread;
-
+        private bool disposedValue;
         private readonly Mutex _workerMutex;
 
         protected ThreadState WorkerState => _workerThread is null ?
@@ -155,5 +155,36 @@ namespace SynergyTextEditor.Classes.Workers
         }
 
         protected virtual void ApplyInitializationArgs(IWorkerArgs initializationArgs) { }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    // TODO: освободить управляемое состояние (управляемые объекты)
+                    CancellationTokenSource.Dispose();
+                    _workerMutex.Dispose();
+                }
+
+                // TODO: освободить неуправляемые ресурсы (неуправляемые объекты) и переопределить метод завершения
+                // TODO: установить значение NULL для больших полей
+                disposedValue = true;
+            }
+        }
+
+        // // TODO: переопределить метод завершения, только если "Dispose(bool disposing)" содержит код для освобождения неуправляемых ресурсов
+        // ~BaseWorker()
+        // {
+        //     // Не изменяйте этот код. Разместите код очистки в методе "Dispose(bool disposing)".
+        //     Dispose(disposing: false);
+        // }
+
+        public void Dispose()
+        {
+            // Не изменяйте этот код. Разместите код очистки в методе "Dispose(bool disposing)".
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
+        }
     }
 }

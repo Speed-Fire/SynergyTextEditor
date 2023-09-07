@@ -106,9 +106,16 @@
                 HorizontalAlignment="Center"
                 Fill="Gray"/>
 
+            <Canvas x:Name="DrawingPanel"
+                    Grid.Column="2"
+                    Panel.ZIndex="0"
+                    Background="{DynamicResource RichTextBox.Background}"/>
+
             <uiCntrls:AdvancedRichTextBox
                 x:Name="Editor"
-                Style="{StaticResource EditorStyle}" 
+                Panel.ZIndex="1"
+                Style="{StaticResource EditorStyle}"
+                Background="Transparent"
                 Grid.Column="2"
                 TextChanged="Editor_TextChanged"
                 TextContentChanged="Editor_TextContentChanged"

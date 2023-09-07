@@ -95,6 +95,7 @@ namespace SynergyTextEditor.Classes.TextHighlighters
         public override void Dispose()
         {
             highlightingWorker.Abort();
+            highlightingWorker.Dispose();
         }
     }
 }

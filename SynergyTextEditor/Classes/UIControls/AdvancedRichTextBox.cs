@@ -46,8 +46,18 @@ namespace SynergyTextEditor.Classes.UIControls
             if ((Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control)
                 return;
 
+            if(e.Key == Key.Tab)
+            {
+                Selection.Text = new string(' ', 4);
+
+                Selection.Select(CaretPosition, CaretPosition);
+
+                e.Handled = true;
+            }
+
             if (e.Key == Key.Enter ||
-               e.Key == Key.Space)
+               e.Key == Key.Space  ||
+               e.Key == Key.Tab)
             {
                 TextContentChanged?.Invoke(this, new TextContentChangedEventArgs(TextContentChangeType.WhitespaceCharInput));
             }

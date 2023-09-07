@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using SynergyTextEditor.Classes.BracketBlockHighlighting;
 using SynergyTextEditor.Classes.Converters;
 using SynergyTextEditor.Classes.MenuItemRadioControllers;
 using SynergyTextEditor.Classes.TextHighlighters;
@@ -52,7 +53,17 @@ namespace SynergyTextEditor.Classes.Extensions
 
         public static IServiceCollection RegisterWorkers(this IServiceCollection services)
         {
-            services.AddSingleton<TextHighlightingWorker>();
+            services
+                .AddSingleton<TextHighlightingWorker>()
+                .AddSingleton<BracketBlockHighlightingWorker>();
+
+            return services;
+        }
+
+        public static IServiceCollection RegisterBracketBlockHighlightingSystem(this IServiceCollection services)
+        {
+            services
+                .AddTransient<BracketBlockHighlighter>();
 
             return services;
         }
