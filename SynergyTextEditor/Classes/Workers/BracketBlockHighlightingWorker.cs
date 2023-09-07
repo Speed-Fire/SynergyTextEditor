@@ -12,6 +12,7 @@ using System.Windows.Documents;
 using System.Windows.Media;
 using System.Windows.Media.Media3D;
 using System.Windows.Shapes;
+using SynergyTextEditor.Classes.Helpers;
 using SynergyTextEditor.Classes.Structs;
 
 namespace SynergyTextEditor.Classes.Workers
@@ -393,27 +394,14 @@ namespace SynergyTextEditor.Classes.Workers
                     StrokeDashArray = { 4, 3 }
                 };
 
+                var charWidth = SymbolHelper.GetCharWidth(_rtb, '{');
+
                 line.SetValue(Canvas.TopProperty, rectStart.Y + rectStart.Height);
-                line.SetValue(Canvas.LeftProperty, rectStart.X + GetCharWidth() / 2);
+                line.SetValue(Canvas.LeftProperty, rectStart.X + charWidth / 2);
 
                 _canvas.Children.Add(line);
             });
 
-        }
-
-        private double GetCharWidth()
-        {
-            var formattedText = new FormattedText(
-           "{",
-           CultureInfo.CurrentCulture,
-           FlowDirection.LeftToRight,
-           new Typeface(_rtb.FontFamily, _rtb.FontStyle, _rtb.FontWeight, _rtb.FontStretch),
-           _rtb.FontSize,
-           Brushes.Black,
-           new NumberSubstitution(),
-           1);
-
-            return formattedText.Width;
         }
 
         public void ClearBracketList()

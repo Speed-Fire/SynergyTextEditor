@@ -20,12 +20,12 @@ namespace SynergyTextEditor.Classes.SyntaxHighlighting.Highlighters.KeywordHighl
     public sealed class ParallelKeywordHighlighter :
         KeywordHighlighterBase
     {
-        private readonly TextHighlightingWorker highlightingWorker;
+        private readonly KeywordHighlightingWorker highlightingWorker;
 
         protected override string CurrentLanguageName => highlightingWorker.CurrentLanguageName;
 
         public ParallelKeywordHighlighter(IKeywordLanguageSelector languageSelector,
-            TextHighlightingWorker highlightingWorker) 
+            KeywordHighlightingWorker highlightingWorker) 
             :
             base(languageSelector)
         {
@@ -36,10 +36,9 @@ namespace SynergyTextEditor.Classes.SyntaxHighlighting.Highlighters.KeywordHighl
         {
             base.Init(args);
 
-            highlightingWorker.Run(new TextHighlightingWorkerArgs()
+            highlightingWorker.Run(new KeywordHighlightingWorkerArgs()
             {
-                rtb = rtb,
-                listener = this
+                rtb = rtb
             });
         }
 

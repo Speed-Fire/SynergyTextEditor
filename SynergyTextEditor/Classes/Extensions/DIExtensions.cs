@@ -75,7 +75,7 @@ namespace SynergyTextEditor.Classes.Extensions
         public static IServiceCollection RegisterWorkers(this IServiceCollection services)
         {
             services
-                .AddSingleton<TextHighlightingWorker>()
+                .AddSingleton<KeywordHighlightingWorker>()
                 .AddSingleton<BracketBlockHighlightingWorker>();
 
             return services;

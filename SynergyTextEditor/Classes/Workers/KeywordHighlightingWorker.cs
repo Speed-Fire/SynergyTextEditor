@@ -15,13 +15,12 @@ using System.Windows.Documents;
 
 namespace SynergyTextEditor.Classes.Workers
 {
-    public class TextHighlightingWorkerArgs : IWorkerArgs
+    public class KeywordHighlightingWorkerArgs : IWorkerArgs
     {
         public RichTextBox rtb;
-        public IRecipient<TextChangedMessage> listener;
     }
 
-    public class TextHighlightingWorker : 
+    public class KeywordHighlightingWorker : 
         BaseWorker,
         INotifyPropertyChanged
     {
@@ -30,7 +29,6 @@ namespace SynergyTextEditor.Classes.Workers
         private readonly ConcurrentQueue<HighlightingInterval> _changedIntervals = new();
 
         private RichTextBox _rtb;
-        private IRecipient<TextChangedMessage> _textChangedListener;
 
         private KeywordLanguage _language = null;
         private KeywordLanguage Language
@@ -46,7 +44,7 @@ namespace SynergyTextEditor.Classes.Workers
 
         public string CurrentLanguageName => _language is null ? null : _language.Name;
 
-        public TextHighlightingWorker() 
+        public KeywordHighlightingWorker() 
             :
             base("Text highlighting worker", true)
         {
@@ -112,10 +110,9 @@ namespace SynergyTextEditor.Classes.Workers
 
         protected override void ApplyInitializationArgs(IWorkerArgs initializationArgs)
         {
-            var args = initializationArgs as TextHighlightingWorkerArgs;
+            var args = initializationArgs as KeywordHighlightingWorkerArgs;
 
             _rtb = args.rtb;
-            _textChangedListener = args.listener;
         }
 
         #endregion
