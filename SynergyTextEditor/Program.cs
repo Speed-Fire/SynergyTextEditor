@@ -24,12 +24,10 @@ namespace SynergyTextEditor
             {
                 services
                     .RegisterConverters()
-                    .RegisterDPConverters()
                     .RegisterWorkers()
                     .RegisterHighlightingSystem()
                     .RegisterMenuItemRadioControllers()
-                    .RegisterThemeServices()
-                    .RegisterBracketBlockHighlightingSystem();
+                    .RegisterThemeServices();
 
                 services.AddSingleton<App>();
                 services.AddSingleton<MainWindow>();

@@ -15,7 +15,7 @@ using System.Windows.Documents;
 
 
 
-namespace SynergyTextEditor.Classes.TextHighlighters
+namespace SynergyTextEditor.Classes.SyntaxHighlighting.Highlighters.TextHighlighters
 {
     public sealed class ParallelTextHighlighter :
         TextHighlighterBase
@@ -32,9 +32,9 @@ namespace SynergyTextEditor.Classes.TextHighlighters
             this.highlightingWorker = highlightingWorker;
         }
 
-        public override void Init(RichTextBox rtb)
+        public override void Init(SyntaxHighlighterInitArgs args)
         {
-            base.Init(rtb);
+            base.Init(args);
 
             highlightingWorker.Run(new TextHighlightingWorkerArgs()
             {
@@ -49,11 +49,6 @@ namespace SynergyTextEditor.Classes.TextHighlighters
         }
 
         #region Message handlers
-
-        public override void Receive(TextChangedMessage message)
-        {
-            TextChanged(null, message.Value);
-        }
 
         public override void Receive(FileOpenedMessage message)
         {
@@ -92,8 +87,10 @@ namespace SynergyTextEditor.Classes.TextHighlighters
 
         #endregion
 
-        public override void Dispose()
+        protected override void Dispose(bool disposing)
         {
+            base.Dispose(disposing);
+
             highlightingWorker.Abort();
             highlightingWorker.Dispose();
         }

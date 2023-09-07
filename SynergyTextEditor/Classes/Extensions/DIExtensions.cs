@@ -1,8 +1,8 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using SynergyTextEditor.Classes.BracketBlockHighlighting;
+using SynergyTextEditor.Classes.SyntaxHighlighting.Highlighters.BracketBlockHighlighting;
 using SynergyTextEditor.Classes.Converters;
 using SynergyTextEditor.Classes.MenuItemRadioControllers;
-using SynergyTextEditor.Classes.TextHighlighters;
+using SynergyTextEditor.Classes.SyntaxHighlighting.Highlighters.TextHighlighters;
 using SynergyTextEditor.Classes.Workers;
 using System;
 using System.Collections.Generic;
@@ -24,15 +24,36 @@ namespace SynergyTextEditor.Classes.Extensions
             return services;
         }
 
+        #region Highlighting system
+
         public static IServiceCollection RegisterHighlightingSystem(this IServiceCollection services)
+        {
+            services
+                .RegisterKeywordHighlighter()
+                .RegisterBracketBlockHighlighter();
+            
+            return services;
+        }
+
+        public static IServiceCollection RegisterKeywordHighlighter(this IServiceCollection services)
         {
             services
                 .AddSingleton<IKeywordLanguageLoader, KeywordLanguageLoader>()
                 .AddSingleton<IKeywordLanguageSelector, KeywordLanguageSelector>()
                 .AddTransient<TextHighlighterBase, ParallelTextHighlighter>();
-            
+
             return services;
         }
+
+        public static IServiceCollection RegisterBracketBlockHighlighter(this IServiceCollection services)
+        {
+            services
+                .AddTransient<BracketBlockHighlighter>();
+
+            return services;
+        }
+
+        #endregion
 
         public static IServiceCollection RegisterMenuItemRadioControllers(this IServiceCollection services)
         {
@@ -59,22 +80,5 @@ namespace SynergyTextEditor.Classes.Extensions
 
             return services;
         }
-
-        public static IServiceCollection RegisterBracketBlockHighlightingSystem(this IServiceCollection services)
-        {
-            services
-                .AddTransient<BracketBlockHighlighter>();
-
-            return services;
-        }
-
-        public static IServiceCollection RegisterDPConverters(this IServiceCollection services)
-        {
-
-
-            return services;
-        }
-
-
     }
 }

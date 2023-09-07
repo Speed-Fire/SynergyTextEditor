@@ -46,7 +46,7 @@ namespace SynergyTextEditor.Classes.Workers
 
         public TextHighlightingWorker() 
             :
-            base("TextHighlightingWorker", true)
+            base("Text highlighting worker", true)
         {
             PropertyChanged += TextHighlightingWorker_PropertyChanged;
         }
@@ -123,7 +123,6 @@ namespace SynergyTextEditor.Classes.Workers
         private void Highlight(TextPointer start, TextPointer end)
         {
             // Unsubscribe from TextChanged
-            //WeakReferenceMessenger.Default.Unregister<TextChangedMessage>(_textChangedListener);
             WeakReferenceMessenger.Default.Send(new StopTextChangedMessage(true));
 
             // clear all text styling in the range
@@ -137,8 +136,7 @@ namespace SynergyTextEditor.Classes.Workers
             {
                 // Find all keywords in the range
                 for (var navigator = start;
-                    navigator.CompareTo(end) < 0;
-                    /*navigator = navigator.GetNextContextPosition(LogicalDirection.Forward)*/)
+                    navigator.CompareTo(end) < 0;)
                 {
                     var context = navigator.GetPointerContext(LogicalDirection.Backward);
 
@@ -167,7 +165,6 @@ namespace SynergyTextEditor.Classes.Workers
             }
 
             // Subscribe to TextChanged
-            //WeakReferenceMessenger.Default.Register(_textChangedListener);
             WeakReferenceMessenger.Default.Send(new StopTextChangedMessage(false));
         }
 

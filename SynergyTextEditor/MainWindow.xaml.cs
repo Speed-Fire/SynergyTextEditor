@@ -1,9 +1,9 @@
 ﻿using CommunityToolkit.Mvvm.Messaging;
 using SynergyTextEditor.Classes;
 using SynergyTextEditor.Classes.Blockers;
-using SynergyTextEditor.Classes.BracketBlockHighlighting;
+using SynergyTextEditor.Classes.SyntaxHighlighting.Highlighters.BracketBlockHighlighting;
 using SynergyTextEditor.Classes.MenuItemRadioControllers;
-using SynergyTextEditor.Classes.TextHighlighters;
+using SynergyTextEditor.Classes.SyntaxHighlighting.Highlighters.TextHighlighters;
 using SynergyTextEditor.Classes.UIControls;
 using SynergyTextEditor.Messages;
 using SynergyTextEditor.ViewModels;
@@ -60,7 +60,7 @@ namespace SynergyTextEditor
             #region Initialize visual components
 
             _textHighlighter = textHighlighter;
-            _textHighlighter.Init(Editor);
+            _textHighlighter.Init(new TextHighlighterInitArgs(Editor));
 
             _syntaxMenuItemRadioController = syntaxMenuItemRadioController;
             _syntaxMenuItemRadioController.Fill(SyntaxList);
@@ -71,7 +71,7 @@ namespace SynergyTextEditor
             _lineNumerator = new LineNumerator(LineNumbers, Editor);
 
             _bracketBlockHighlighter = bracketBlockHighlighter;
-            _bracketBlockHighlighter.Init(Editor, DrawingPanel);
+            _bracketBlockHighlighter.Init(new BracketBlockHighlighterInitArgs(Editor, DrawingPanel));
 
             #endregion
         }

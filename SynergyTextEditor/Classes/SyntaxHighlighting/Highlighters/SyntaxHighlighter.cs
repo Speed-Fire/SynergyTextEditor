@@ -1,5 +1,4 @@
 ﻿using CommunityToolkit.Mvvm.Messaging;
-using Microsoft.Extensions.DependencyInjection;
 using SynergyTextEditor.Messages;
 using System;
 using System.Collections.Generic;
@@ -9,44 +8,21 @@ using System.Threading.Tasks;
 using System.Windows.Controls;
 using System.Windows.Documents;
 
-
-
-namespace SynergyTextEditor.Classes.TextHighlighters
+namespace SynergyTextEditor.Classes.SyntaxHighlighting.Highlighters
 {
-    public abstract class TextHighlighterBase :
+    public abstract class SyntaxHighlighter :
         IDisposable,
-        IRecipient<TextChangedMessage>,
-        IRecipient<FileOpenedMessage>,
-        IRecipient<KeywordLanguageUploadedMessage>,
-        IRecipient<SelectKeywordLanguageMessage>
+        IRecipient<TextChangedMessage>
     {
+        private bool disposedValue;
+
         protected RichTextBox rtb;
-        protected readonly IKeywordLanguageSelector languageSelector;
 
-        protected abstract string CurrentLanguageName { get; }
-
-        protected TextHighlighterBase(IKeywordLanguageSelector languageSelector)
+        public virtual void Init(SyntaxHighlighterInitArgs args)
         {
-            this.languageSelector = languageSelector;
-        }
-
-        public virtual void Init(RichTextBox rtb)
-        {
-            this.rtb = rtb;
+            this.rtb = args.Rtb;
 
             WeakReferenceMessenger.Default.RegisterAll(this);
-
-            WeakReferenceMessenger.Default.Register<CurrentLanguageNameRequestMessage>(this, (r, m) =>
-            {
-                if (CurrentLanguageName == null)
-                {
-                    m.Reply("");
-                }
-                else
-                {
-                    m.Reply(CurrentLanguageName);
-                }
-            });
         }
 
         protected void TextChanged(object sender, TextChangedEventArgs e)
@@ -118,10 +94,35 @@ namespace SynergyTextEditor.Classes.TextHighlighters
 
         protected abstract void Highlight(TextPointer start, TextPointer end);
 
-        public abstract void Dispose();
-        public abstract void Receive(TextChangedMessage message);
-        public abstract void Receive(FileOpenedMessage message);
-        public abstract void Receive(KeywordLanguageUploadedMessage message);
-        public abstract void Receive(SelectKeywordLanguageMessage message);
+        public void Receive(TextChangedMessage message)
+        {
+            TextChanged(null, message.Value);
+        }
+
+        #region Disposing
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    // TODO: освободить управляемое состояние (управляемые объекты)
+                }
+
+                // TODO: освободить неуправляемые ресурсы (неуправляемые объекты) и переопределить метод завершения
+                // TODO: установить значение NULL для больших полей
+                disposedValue = true;
+            }
+        }
+
+        public void Dispose()
+        {
+            // Не изменяйте этот код. Разместите код очистки в методе "Dispose(bool disposing)".
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
+        }
+
+        #endregion
     }
 }

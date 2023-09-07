@@ -21,7 +21,7 @@ using System.Windows.Threading;
 
 
 
-namespace SynergyTextEditor.Classes.TextHighlighters
+namespace SynergyTextEditor.Classes.SyntaxHighlighting.Highlighters.TextHighlighters
 {
     public sealed class SequentialTextHighlighter :
         TextHighlighterBase,
@@ -141,11 +141,6 @@ namespace SynergyTextEditor.Classes.TextHighlighters
 
         #region Message handlers
 
-        public override void Receive(TextChangedMessage message)
-        {
-            TextChanged(null, message.Value);
-        }
-
         public override void Receive(FileOpenedMessage message)
         {
             Language = languageSelector.GetLanguage(Path.GetExtension(message.Value));
@@ -193,10 +188,5 @@ namespace SynergyTextEditor.Classes.TextHighlighters
         }
 
         #endregion
-
-        public override void Dispose()
-        {
-            
-        }
     }
 }

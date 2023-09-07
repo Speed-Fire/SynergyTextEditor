@@ -375,16 +375,6 @@ namespace SynergyTextEditor.Classes.Workers
 
             Rect rectStart, rectEnd;
 
-            //var line = new Line()
-            //{
-            //    X1 = rectStart.X + rectStart.Width,
-            //    Y1 = rectStart.Y + rectStart.Height,
-            //    X2 = rectStart.X + rectStart.Width,
-            //    Y2 = rectEnd.Y,
-            //    Stroke = new SolidColorBrush(Colors.White),
-            //    StrokeDashArray = { 4, 3 }
-            //};
-
             App.Current.Dispatcher?.Invoke(() =>
             {
                 rectStart = start.Position.GetCharacterRect(LogicalDirection.Forward);
