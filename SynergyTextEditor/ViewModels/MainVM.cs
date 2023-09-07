@@ -231,6 +231,13 @@ namespace SynergyTextEditor.ViewModels
                 WeakReferenceMessenger.Default.Send(new SelectKeywordLanguageMessage(langName));
             }));
 
+        private RelayCommand<bool> enableBracketBlockHighlighting;
+        public RelayCommand<bool> EnableBracketBlockHighlighting => enableBracketBlockHighlighting ??
+            (enableBracketBlockHighlighting = new RelayCommand<bool>(isEnable =>
+            {
+                WeakReferenceMessenger.Default.Send(new EnableBracketBlockHighlightingMessage(isEnable));
+            }));
+
         #endregion
 
         private void RequestSaving(object sender, ExecutedRoutedEventArgs e)

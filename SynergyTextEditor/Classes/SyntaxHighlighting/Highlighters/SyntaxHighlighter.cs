@@ -1,4 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.Messaging;
+using SynergyTextEditor.Classes.Blockers;
 using SynergyTextEditor.Messages;
 using System;
 using System.Collections.Generic;
@@ -17,6 +18,12 @@ namespace SynergyTextEditor.Classes.SyntaxHighlighting.Highlighters
         private bool disposedValue;
 
         protected RichTextBox rtb;
+        protected readonly Blocker blocker;
+
+        public SyntaxHighlighter()
+        {
+            blocker = new Blocker();
+        }
 
         public virtual void Init(SyntaxHighlighterInitArgs args)
         {
@@ -27,6 +34,8 @@ namespace SynergyTextEditor.Classes.SyntaxHighlighting.Highlighters
 
         protected void TextChanged(object sender, TextChangedEventArgs e)
         {
+            if (blocker.IsBlocked()) return;
+
             if (rtb.Document is null)
                 return;
 

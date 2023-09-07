@@ -1,4 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.Messaging;
+using SynergyTextEditor.Classes.Blockers;
 using SynergyTextEditor.Classes.Workers;
 using SynergyTextEditor.Messages;
 using System;
@@ -12,7 +13,8 @@ using System.Windows.Documents;
 namespace SynergyTextEditor.Classes.SyntaxHighlighting.Highlighters.BracketBlockHighlighting
 {
     public class BracketBlockHighlighter :
-        SyntaxHighlighter
+        SyntaxHighlighter,
+        IRecipient<EnableBracketBlockHighlightingMessage>
     {
         private readonly BracketBlockHighlightingWorker worker;
 
@@ -49,6 +51,27 @@ namespace SynergyTextEditor.Classes.SyntaxHighlighting.Highlighters.BracketBlock
 
             worker.Abort();
             worker.Dispose();
+        }
+
+        void IRecipient<EnableBracketBlockHighlightingMessage>.Receive(EnableBracketBlockHighlightingMessage message)
+        {
+            if (message.Value) // unblock
+            {
+                if (!blocker.IsBlocked()) return;
+
+                blocker.SetState(!message.Value);
+
+                FullHighlight();
+            }
+            else // block
+            {
+                if (blocker.IsBlocked()) return;
+
+                blocker.SetState(!message.Value);
+
+                worker.ClearIntervals();
+                worker.ClearBracketList();
+            }
         }
     }
 }

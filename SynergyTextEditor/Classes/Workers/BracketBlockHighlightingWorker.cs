@@ -54,6 +54,8 @@ namespace SynergyTextEditor.Classes.Workers
         private readonly LinkedList<Bracket> _brackets = new();
         private readonly HashSet<Paragraph> _knownParagraphs = new();
 
+        private readonly object _lock = new object();
+
         private RichTextBox _rtb;
         private Canvas _canvas;
 
@@ -87,11 +89,18 @@ namespace SynergyTextEditor.Classes.Workers
                 if (IsSuspended)
                     return;
 
-                ClearAllInvalidBrackets();
+                lock (_lock)
+                {
+                    ClearAllInvalidBrackets();
+                }
 
                 if (_changedIntervals.TryDequeue(out HighlightingInterval interval))
                 {
-                    UpdateBracketList(interval.Start, interval.End);
+                    lock (_lock)
+                    {
+                        UpdateBracketList(interval.Start, interval.End);
+                    }
+
                     hasChanged = true;
                 }
             }
@@ -101,7 +110,10 @@ namespace SynergyTextEditor.Classes.Workers
 
             if (hasChanged || Interlocked.And(ref _isScrolled, 1) == 1)
             {
-                RedrawBracketBlockLines();
+                lock (_lock)
+                {
+                    RedrawBracketBlockLines();
+                }
 
                 Interlocked.Decrement(ref _isScrolled);
             }
@@ -406,8 +418,12 @@ namespace SynergyTextEditor.Classes.Workers
 
         public void ClearBracketList()
         {
-            _brackets.Clear();
-            _knownParagraphs.Clear();
+            lock (_lock)
+            {
+                _brackets.Clear();
+                _knownParagraphs.Clear();
+                _canvas.Children.Clear();
+            }
         }
 
         #endregion

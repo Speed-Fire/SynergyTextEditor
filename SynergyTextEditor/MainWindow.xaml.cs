@@ -86,7 +86,7 @@ namespace SynergyTextEditor
             if (_textChangedBlocker.IsBlocked())
                 return;
 
-            WeakReferenceMessenger.Default.Send(new TextChangedMessage(e));   
+            WeakReferenceMessenger.Default.Send(new TextChangedMessage(e));
         }
 
         /// <summary>

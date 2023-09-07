@@ -52,6 +52,12 @@
                     Header="Line numerator"
                     IsCheckable="True"
                     IsChecked="False"/>
+                <MenuItem
+                    Header="Bracket block highlighting"
+                    IsCheckable="True"
+                    IsChecked="True"
+                    Command="{Binding EnableBracketBlockHighlighting}"
+                    CommandParameter="{Binding RelativeSource={RelativeSource Self}, Path=IsChecked}"/>
             </MenuItem>
 
             <MenuItem Header="Syntaxes">
