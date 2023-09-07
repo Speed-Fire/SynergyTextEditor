@@ -18,6 +18,7 @@
         </Grid.RowDefinitions>
         
         <Menu
+            Panel.ZIndex="1"
             Grid.Row="0">
             <MenuItem Header="File">
                 <MenuItem Header="Open"
@@ -70,6 +71,7 @@
         </Menu>
 
         <Grid
+            Panel.ZIndex="0"
             Grid.Row="1">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
