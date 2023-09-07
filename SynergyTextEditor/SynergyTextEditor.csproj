@@ -16,11 +16,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Remove="cwvmdznb.0kw~" />
-    <None Remove="MainWindow.xaml~RF28f0fe08.TMP" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Page Remove="KeywordLangMapper.xaml" />
     <Page Remove="KeywordLanguages\CSlangHighlight.xaml" />
   </ItemGroup>
